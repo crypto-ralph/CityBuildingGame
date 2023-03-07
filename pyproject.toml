@@ -4,12 +4,13 @@ version = "0.1.0"
 description = ""
 authors = ["CryptoRalph <doxter@protonmail.com>"]
 readme = "README.md"
-packages = [{include = "chatgpt_game"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pygame = "^2.2.0"
+pygame = "*"
 
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
 
 [build-system]
 requires = ["poetry-core"]

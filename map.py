@@ -20,10 +20,25 @@ class Tile:
     def __init__(self, tile_type="grass"):
         self.elevation = 0
         self.type = tile_type
+        self.color = self.get_color()
+
+    def get_color(self):
+        if self.type == "grass":
+            green = int(255 * (self.elevation + 0.5) / 1.5)
+            return 0, green, 0
+        elif self.type == "water":
+            blue = int(255 * (1 - self.elevation))
+            return 0, 0, max(0, blue)
+        else:
+            # default color is black
+            return 0, 0, 0
+
+    def set_elevation(self, elevation):
+        self.elevation = elevation
+        self.color = self.get_color()
 
     def draw(self, surface, x, y):
-        tile_image = TILE_IMAGES[self.type]
-        surface.blit(tile_image, (x, y))
+        pygame.draw.rect(surface, self.color, (x, y, TILE_SIZE, TILE_SIZE))
 
 
 class Map:
@@ -42,7 +57,7 @@ class Map:
                 tile = Tile()
                 if random.random() < water_proportion:
                     tile.type = "water"
-                tile.elevation = random.random()
+                tile.set_elevation(random.random())
                 self.tiles[x][y] = tile
 
         # Generate the river
@@ -56,8 +71,11 @@ class Map:
             for x in range(self.width):
                 tile = self.tiles[x][y]
                 distance_to_river = abs(
-                    (end_y - start_y) * x - (end_x - start_x) * y + end_x * start_y - end_y * start_x) / math.sqrt(
-                    (end_y - start_y) ** 2 + (end_x - start_x) ** 2)
+                    (end_y - start_y) * x
+                    - (end_x - start_x) * y
+                    + end_x * start_y
+                    - end_y * start_x
+                ) / math.sqrt((end_y - start_y) ** 2 + (end_x - start_x) ** 2)
                 if distance_to_river < 20:
                     tile.elevation -= 0.1 * (20 - distance_to_river) / 20
 

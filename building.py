@@ -16,7 +16,11 @@ class Building:
         # Check if the building can be placed at the given coordinates
         for row in range(y, y + self.height):
             for column in range(x, x + self.width):
-                if row >= MAP_HEIGHT or column >= MAP_WIDTH or map_data[row][column] != 1:
+                if (
+                    row >= MAP_HEIGHT
+                    or column >= MAP_WIDTH
+                    or map_data[row][column] != 1
+                ):
                     return False
         return True
 
@@ -25,7 +29,9 @@ class Building:
         if self.can_place(x, y, map_data):
             for row in range(y, y + self.height):
                 for column in range(x, x + self.width):
-                    map_data[row][column] = 2  # Use a new value to indicate the building
+                    map_data[row][
+                        column
+                    ] = 2  # Use a new value to indicate the building
             return True
         else:
             return False

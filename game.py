@@ -13,7 +13,9 @@ pygame.init()
 pygame.init()
 
 # Create the screen
-screen = pygame.display.set_mode((GameSettings.SCREEN_WIDTH, GameSettings.SCREEN_HEIGHT))
+screen = pygame.display.set_mode(
+    (GameSettings.SCREEN_WIDTH, GameSettings.SCREEN_HEIGHT)
+)
 pygame.display.set_caption("City Building Game")
 
 # Set up the game clock
@@ -42,4 +44,6 @@ while running:
 pygame.quit()
 
 # Give credit where credit is due
-print("Credits: This game was created with the help of ChatGPT, a large language model trained by OpenAI.")
+print(
+    "Credits: This game was created with the help of ChatGPT, a large language model trained by OpenAI."
+)

@@ -3,6 +3,7 @@ import sys
 import pygame
 
 from button import Button
+from game_manager import GameManager, BuildingManager
 from game_settings import GameSettings
 
 FPS = 60
@@ -16,6 +17,10 @@ UI_BACKGROUND_COLOR = (200, 200, 200)
 
 BUTTON_WIDTH = 100
 BUTTON_HEIGHT = 40
+
+game_manager = GameManager()
+building_manager = BuildingManager()
+
 
 
 class UI:
@@ -73,9 +78,17 @@ def game_loop(game_map, game_clock, screen):
         ui_background_color=UI_BACKGROUND_COLOR,
     )
 
+    income_update_time = pygame.time.get_ticks() + game_manager.income_update_interval
+
     running = True
     while running:
         dt = game_clock.tick(FPS) / 1000.0
+        current_time = pygame.time.get_ticks()
+        if current_time >= income_update_time:
+            # Update income if the interval has passed
+            print(f"Updating money. Money {game_manager.money}")
+            game_manager.money += building_manager.get_income()
+            income_update_time = current_time + game_manager.income_update_interval
 
         # Handle events
         for event in pygame.event.get():

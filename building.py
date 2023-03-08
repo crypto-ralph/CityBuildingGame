@@ -11,6 +11,7 @@ class Building:
         self.cost = cost
         self.image = pygame.Surface((width * TILE_SIZE, height * TILE_SIZE))
         self.image.fill((255, 0, 0))  # Replace with actual building image
+        self.income = 0
 
     def can_place(self, x, y, map_data):
         # Check if the building can be placed at the given coordinates
@@ -35,3 +36,6 @@ class Building:
             return True
         else:
             return False
+
+    def get_income(self):
+        return self.income

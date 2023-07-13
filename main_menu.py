@@ -1,10 +1,11 @@
 import sys
 
 import pygame
-from button import Button
+from button import SpriteButton
 from game_settings import GameSettings
 
 UI_BUTTON_COLOR = (150, 150, 150)
+HOVER_BUTTON_COLOR = (200, 200, 200)
 BUTTON_PADDING = 20
 BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 50
@@ -32,29 +33,35 @@ build_rect = build_surface.get_rect(
 
 
 def main_menu(screen):
-    # Create the buttons if they were not passed in as arguments
-    start_button = Button(
+    start_button = SpriteButton(
         x=50,
         y=50,
         width=200,
         height=50,
         text="Start Game",
         button_color=UI_BUTTON_COLOR,
+        hover_color=HOVER_BUTTON_COLOR,
     )
-    settings_button = Button(
-        x=50, y=120, width=200, height=50, text="Settings", button_color=UI_BUTTON_COLOR
+    settings_button = SpriteButton(
+        x=50, y=120, width=200, height=50, text="Settings", button_color=UI_BUTTON_COLOR, hover_color=HOVER_BUTTON_COLOR,
     )
-    exit_button = Button(
+    exit_button = SpriteButton(
         x=50,
         y=190,
         width=200,
         height=50,
         text="Exit Game",
         button_color=UI_BUTTON_COLOR,
+        hover_color=HOVER_BUTTON_COLOR,
     )
-    credits_button = Button(
-        x=50, y=260, width=200, height=50, text="Credits", button_color=UI_BUTTON_COLOR
+    credits_button = SpriteButton(
+        x=50, y=260, width=200, height=50, text="Credits", button_color=UI_BUTTON_COLOR, hover_color=HOVER_BUTTON_COLOR,
     )
+    menu_buttons = pygame.sprite.Group()
+    menu_buttons.add(start_button)
+    menu_buttons.add(settings_button)
+    menu_buttons.add(exit_button)
+    menu_buttons.add(credits_button)
 
     running = True
     while running:
@@ -70,45 +77,59 @@ def main_menu(screen):
                     elif settings_button.is_clicked(event.pos):
                         print("Settings button clicked")
                         # Open the settings window
-                        get_resolution_from_user(screen)
+                        settings_menu_loop(screen)
                     elif exit_button.is_clicked(event.pos):
                         GameSettings.MENU_STATE = "exit_game"
                         running = False
                     elif credits_button.is_clicked(event.pos):
                         print("Credits button clicked")
 
+        for button in menu_buttons:
+            button.handle_hovered(pygame.mouse.get_pos())
+
+
         # Draw the screen
         screen.fill((0, 0, 0))
-        start_button.draw(screen)
-        settings_button.draw(screen)
-        exit_button.draw(screen)
-        credits_button.draw(screen)
+        menu_buttons.draw(screen)
         screen.blit(version_surface, version_rect)
         screen.blit(build_surface, build_rect)
         pygame.display.flip()
 
 
-def get_resolution_from_user(screen):
-    # Create the buttons
+def settings_menu_loop(screen):
     resolutions = [(640, 480), (800, 600), (1024, 768), (1280, 720), (1920, 1080)]
-    buttons = []
+    buttons = pygame.sprite.Group()
     for i, resolution in enumerate(resolutions):
         x = GameSettings.SCREEN_WIDTH // 2 - BUTTON_WIDTH // 2
         y = BUTTON_PADDING + i * (BUTTON_HEIGHT + BUTTON_PADDING)
         text = f"{resolution[0]}x{resolution[1]}"
-        button = Button(
-            x, y, BUTTON_WIDTH, BUTTON_HEIGHT, text=text, button_color=UI_BUTTON_COLOR
+        button = SpriteButton(
+            x, y, BUTTON_WIDTH, BUTTON_HEIGHT, text=text, button_color=UI_BUTTON_COLOR, hover_color=HOVER_BUTTON_COLOR,
         )
-        buttons.append(button)
+        buttons.add(button)
 
-    back_button = Button(
+    back_button = SpriteButton(
         x=GameSettings.SCREEN_WIDTH // 2 - BUTTON_WIDTH // 2,
         y=GameSettings.SCREEN_HEIGHT - 2 * BUTTON_PADDING - BUTTON_HEIGHT,
         width=BUTTON_WIDTH,
         height=BUTTON_HEIGHT,
         text="Back to menu",
         button_color=UI_BUTTON_COLOR,
+        hover_color=HOVER_BUTTON_COLOR,
     )
+    buttons.add(back_button)
+
+    # Function to update button positions based on the current resolution
+    def update_button_positions():
+        for i, button in enumerate(buttons):
+            button.rect.x = GameSettings.SCREEN_WIDTH // 2 - BUTTON_WIDTH // 2
+            button.rect.y = BUTTON_PADDING + i * (BUTTON_HEIGHT + BUTTON_PADDING)
+
+        back_button.rect.x = GameSettings.SCREEN_WIDTH // 2 - BUTTON_WIDTH // 2
+        back_button.rect.y = GameSettings.SCREEN_HEIGHT - 2 * BUTTON_PADDING - BUTTON_HEIGHT
+
+    # Update button positions initially
+    update_button_positions()
 
     # Highlight the button for the current resolution
     current_resolution = (GameSettings.SCREEN_WIDTH, GameSettings.SCREEN_HEIGHT)
@@ -118,40 +139,35 @@ def get_resolution_from_user(screen):
 
     running = True
     while running:
+        for button in buttons:
+            if button.text == f"{current_resolution[0]}x{current_resolution[1]}":
+                button.set_color((100, 100, 100))
+            else:
+                button.set_color(UI_BUTTON_COLOR)
+                button.handle_hovered(pygame.mouse.get_pos())
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    if back_button.is_clicked(event.pos):
-                        running = False
                     for button in buttons:
                         if button.is_clicked(event.pos):
+                            if button.text == "Back to menu":
+                                running = False
+                                continue
                             # Set the resolution and update the screen
                             current_resolution = tuple(map(int, button.text.split("x")))
                             GameSettings.set_screen_dimensions(
                                 current_resolution[0], current_resolution[1]
                             )
                             screen = pygame.display.set_mode(current_resolution)
-                            # Highlight the clicked button and unhighlight the others
-                            for j, btn in enumerate(buttons):
-                                if (
-                                    resolutions[j][0],
-                                    resolutions[j][1],
-                                ) == current_resolution:
-                                    print(f"here {current_resolution}")
-                                    btn.button_color = (
-                                        100,
-                                        100,
-                                        100,
-                                    )  # Highlight the selected resolution
-                                else:
-                                    btn.button_color = UI_BUTTON_COLOR
+
+                            # Update button positions based on the new resolution
+                            update_button_positions()
 
         # Draw the screen
         screen.fill((0, 0, 0))
-        for button in buttons:
-            button.draw(screen)
-        back_button.draw(screen)
+        buttons.draw(screen)
         pygame.display.flip()

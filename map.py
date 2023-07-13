@@ -1,12 +1,14 @@
-# Define the map size
 import math
 import random
-
 import pygame
+import noise
 
-MAP_WIDTH = 20
-MAP_HEIGHT = 20
-TILE_SIZE = 32
+MAP_WIDTH = 35
+MAP_HEIGHT = 35
+TILE_SIZE = 24
+OCTAVES = 6
+FREQUENCY = 16.0
+WATER_THRESHOLD = 0.05
 
 TILE_IMAGES = {
     "grass": pygame.image.load("assets/grass.png"),
@@ -21,6 +23,8 @@ class Tile:
         self.elevation = 0
         self.type = tile_type
         self.color = self.get_color()
+        self.highlighted = False
+        self.clicked = False
 
     def get_color(self):
         if self.type == "grass":
@@ -39,53 +43,47 @@ class Tile:
 
     def draw(self, surface, x, y):
         pygame.draw.rect(surface, self.color, (x, y, TILE_SIZE, TILE_SIZE))
+        border_color = (255, 255, 255) if not self.clicked else (200, 200, 200)
+        if self.highlighted:
+            pygame.draw.rect(surface, border_color, (x, y, TILE_SIZE, TILE_SIZE), 2)  # Draw a border
+
+    def set_highlighted(self, highlighted):
+        self.highlighted = highlighted
+
+    def set_clicked(self, clicked):
+        self.clicked = clicked
 
 
 class Map:
-    def __init__(self, width, height, water_proportion):
+    def __init__(self, width, height):
         self.elevation = None
         self.width = width
         self.height = height
         self.tiles = [[Tile() for y in range(height)] for x in range(width)]
         self.buildings = []
-        self.generate_map(water_proportion)
+        self.generate_map()
 
-    def generate_map(self, water_proportion):
-        # Generate the tiles and set their elevation randomly
+    def generate_map(self):
+        # Generate the tiles and set their elevation using Perlin noise
         for x in range(self.width):
             for y in range(self.height):
+                elevation = noise.pnoise2(
+                    x / FREQUENCY, y / FREQUENCY, OCTAVES
+                )
                 tile = Tile()
-                if random.random() < water_proportion:
+                if elevation < WATER_THRESHOLD:
                     tile.type = "water"
-                tile.set_elevation(random.random())
+                tile.set_elevation((elevation + 1) / 2)  # Normalize elevation to [0, 1]
                 self.tiles[x][y] = tile
 
-        # Generate the river
-        start_x = self.width // 2
-        start_y = 0
-        end_x = start_x
-        end_y = self.height - 1
-
-        # Set the elevation of the tiles along the river to be lower
-        for y in range(self.height):
-            for x in range(self.width):
-                tile = self.tiles[x][y]
-                distance_to_river = abs(
-                    (end_y - start_y) * x
-                    - (end_x - start_x) * y
-                    + end_x * start_y
-                    - end_y * start_x
-                ) / math.sqrt((end_y - start_y) ** 2 + (end_x - start_x) ** 2)
-                if distance_to_river < 20:
-                    tile.elevation -= 0.1 * (20 - distance_to_river) / 20
-
-                    # Make sure the elevation stays within the valid range of 0 to 1
-                    tile.elevation = max(0, min(1, tile.elevation))
-
-    def draw(self, surface):
+    def draw(self, surface, camera_offset_x, camera_offset_y):
         for x in range(self.width):
             for y in range(self.height):
-                self.tiles[x][y].draw(surface, x * TILE_SIZE, y * TILE_SIZE)
+                self.tiles[x][y].draw(
+                    surface,
+                    x * TILE_SIZE - camera_offset_x,
+                    y * TILE_SIZE - camera_offset_y
+                )
 
         for building in self.buildings:
             building.draw(surface)
@@ -108,11 +106,11 @@ class Map:
 
 class GameMap:
     def __init__(self, width, height):
-        self.map = Map(width, height, 0.3)
+        self.map = Map(width, height)
 
-    def update(self, dt):
-        for building in self.map.buildings:
-            building.update(dt)
+    # def update(self, dt):
+    #     for building in self.map.buildings:
+    #         building.update(dt)
 
-    def draw(self, surface):
-        self.map.draw(surface)
+    def draw(self, surface, camera_offset_x, camera_offset_y):
+        self.map.draw(surface, camera_offset_x, camera_offset_y)

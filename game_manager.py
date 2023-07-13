@@ -25,3 +25,7 @@ class GameManager:
 
     def __init__(self, money: int = 10000):
         self.money = money
+        self.citizens = 0
+
+    def add_income(self, income):
+        self.money += income

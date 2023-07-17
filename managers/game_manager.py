@@ -1,24 +1,52 @@
 import pygame
 
-from building import Building
+from building import Building, BuildingPreview, House
+from managers.asset_manager import AssetManager
 from map import Map, Tile, TILE_SIZE
 
 
 class BuildingManager:
-    def __init__(self):
+    def __init__(self, asset_manager: AssetManager):
+        self.asset_manager = asset_manager
+        self.current_building = None
+        self.building_preview = None
+        self.building_can_be_placed = False
         self.buildings = []
 
-    def place_building(self, building: Building, x, y, tiles):
-        building.x = x
-        building.y = y
+    def select_building(self, building_type: str):
+        asset = self.asset_manager.get_asset(building_type)
+        self.current_building = House(asset)
+        self.building_preview = BuildingPreview(asset)
 
-        for tile in tiles:
-            tile.occupied = True
+    def clear_current_building(self):
+        self.current_building = None
+        self.building_preview = None
+        self.building_can_be_placed = False
 
-        self.buildings.append(building)
+    def place_building(self, x, y, tiles):
+        if self.building_can_be_placed:
+            self.current_building.x = x
+            self.current_building.y = y
+
+            for tile in tiles:
+                tile.occupied = True
+
+            self.buildings.append(self.current_building)
+            self.clear_current_building()
 
     def remove_building(self, building):
         self.buildings.remove(building)
+
+    def check_placement(self, tile_x, tile_y, game_map):
+        if self.current_building:
+            tiles_to_check = self.get_tiles_for_building(tile_x, tile_y, game_map)
+            self.building_can_be_placed = self.can_place(tiles_to_check)
+
+    def get_current_preview(self):
+        if self.building_can_be_placed:
+            return self.building_preview.tinted_image_green
+        else:
+            return self.building_preview.tinted_image_red
 
     def can_place(self, tiles_to_check):
         # Iterate over all tiles in the list
@@ -29,13 +57,13 @@ class BuildingManager:
         # If all tiles are suitable, return True
         return True
 
-    def get_tiles_for_building(self, tile_x: int, tile_y: int, building: Building, game_map: Map):
+    def get_tiles_for_building(self, tile_x: int, tile_y: int, game_map: Map):
         tiles_to_check = []
 
         # Iterate over all tiles within the building's dimensions
-        for dx in range(building.width):
+        for dx in range(self.current_building.width):
             check_tile_x = tile_x + dx
-            for dy in range(building.height):
+            for dy in range(self.current_building.height):
                 check_tile_y = tile_y + dy
                 # Check if the tile is within the map
                 if check_tile_x < 0 or check_tile_y < 0 or check_tile_x >= game_map.width or check_tile_y >= game_map.height:

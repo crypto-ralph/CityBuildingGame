@@ -4,8 +4,23 @@ from map import TILE_SIZE, MAP_HEIGHT, MAP_WIDTH
 from effects import generate_shadow
 
 
+class BuildingPreview:
+    def __init__(self, asset):
+        self.image = asset
+        # Here you are calling the tint_image function with a color parameter to get tinted images
+        self.tinted_image_green = self.tint_image((0, 255, 0, 128))
+        self.tinted_image_red = self.tint_image((255, 0, 0, 128))
+
+    def tint_image(self, color):
+        """Tints the building image with the given color."""
+        tinted_image = self.image.copy()
+        tinted_image.fill(color, special_flags=pygame.BLEND_RGBA_MULT)
+        return tinted_image
+
+
+
 class Building:
-    def __init__(self, name, width, height, cost, image_path = None):
+    def __init__(self, name, width, height, cost, image):
         self.name = name
         self.width = width
         self.height = height
@@ -14,7 +29,7 @@ class Building:
         self.cost = cost
         # self.image = pygame.Surface((width * TILE_SIZE, height * TILE_SIZE))
         # self.image.fill((255, 0, 0))  # Replace with actual building image
-        self.image = pygame.image.load(image_path).convert_alpha()
+        self.image = image
         self.tinted_image = None
         self.income = 0
 
@@ -31,22 +46,10 @@ class Building:
         # Draw the building considering the camera offset
         surface.blit(self.image, ((self.x * TILE_SIZE) - camera_offset_x, (self.y * TILE_SIZE) - camera_offset_y))
 
-    def tint_image(self, color):
-        """Tints the building image with the given color."""
-        # Make a copy of the image
-        self.tinted_image = self.image.copy()
-        # Fill the copy with the tint color. The special_flags=pygame.BLEND_RGBA_MULT
-        # will multiply the tint color with the surface color.
-        self.tinted_image.fill(color, special_flags=pygame.BLEND_RGBA_MULT)
-
-    def clear_tint(self):
-        """Clears the tint from the building image."""
-        self.tinted_image = None
-
 
 class House(Building):
-    def __init__(self, x=None, y=None):
-        super().__init__(name="House", width=3, height=3, cost=100, image_path="assets/buildings/hut.png")
+    def __init__(self, asset, x=None, y=None):
+        super().__init__(name="House", width=3, height=3, cost=100, image=asset)
         self.x = x
         self.y = y
         self.income = 10  # Houses generate income for the player

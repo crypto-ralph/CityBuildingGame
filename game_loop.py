@@ -3,7 +3,8 @@ import sys
 import pygame
 
 from building import House
-from game_manager import GameManager, BuildingManager
+from managers.asset_manager import AssetManager
+from managers.game_manager import GameManager, BuildingManager
 from game_settings import GameSettings
 from interface.settings_menu import SettingsMenu
 from map import TILE_SIZE
@@ -18,10 +19,8 @@ UI_BACKGROUND_COLOR = (200, 200, 200)
 def game_loop(game_map, game_clock, screen):
     # Create managers here to avoid keeping values
     game_manager = GameManager()
-    building_manager = BuildingManager()
-
-    building_to_place = None
-    building_can_be_placed = False
+    asset_manager = AssetManager()
+    building_manager = BuildingManager(asset_manager)
 
     # Create the UI buttons
     ui = UI(
@@ -52,10 +51,12 @@ def game_loop(game_map, game_clock, screen):
         min_camera_offset_x = 0
         min_camera_offset_y = 0 - ui.TOP_BAR_HEIGHT
 
-        mouse_x, mouse_y = pygame.mouse.get_pos()
+        mouse_pos = pygame.mouse.get_pos()
+
+        mouse_x, mouse_y = mouse_pos
         tile_x, tile_y = (
-            mouse_x // TILE_SIZE,
-            mouse_y // TILE_SIZE,
+            (mouse_x + camera_offset_x) // TILE_SIZE,
+            (mouse_y + camera_offset_y) // TILE_SIZE,
         )
 
         tile = game_map.map.get_tile_at(tile_x, tile_y)
@@ -70,13 +71,9 @@ def game_loop(game_map, game_clock, screen):
             ui.citizens = game_manager.citizens
             income_update_time = current_time + game_manager.income_update_interval
 
-        if building_to_place is not None:
-            tiles_to_check = building_manager.get_tiles_for_building(tile_x, tile_y, building_to_place, game_map.map)
-            building_can_be_placed = building_manager.can_place(tiles_to_check)
-            if building_can_be_placed:
-                building_to_place.tint_image((0, 255, 0, 128))
-            else:
-                building_to_place.tint_image((255, 0, 0, 128))
+        if building_manager.current_building is not None:
+            building_manager.check_placement(tile_x, tile_y, game_map.map)
+
 
         # Handle events
         for event in pygame.event.get():
@@ -85,11 +82,9 @@ def game_loop(game_map, game_clock, screen):
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    if building_to_place is not None and building_can_be_placed:
-                        tiles_to_check = building_manager.get_tiles_for_building(tile_x, tile_y, building_to_place, game_map.map)
-                        building_manager.place_building(building_to_place,tile_x, tile_y, tiles_to_check)
-                        building_to_place.clear_tint()
-                        building_to_place = None
+                    if building_manager.current_building is not None:
+                        tiles_to_check = building_manager.get_tiles_for_building(tile_x, tile_y, game_map.map)
+                        building_manager.place_building(tile_x, tile_y, tiles_to_check)
 
                     if ui.settings_button.is_clicked(event.pos):
                         # Pause the game loop and enter the settings loop
@@ -99,15 +94,14 @@ def game_loop(game_map, game_clock, screen):
                         GameSettings.MENU_STATE = "menu"
                         running = False
                     if ui.hut_button.is_clicked(event.pos):
-                        building_to_place = House()
-                        building_to_place.tint_image((0, 255, 0, 128))
+                        building_manager.select_building("hut")
                     else:
                         if prev_highlighted_tile:
                             prev_highlighted_tile.set_clicked(True)
                             clicked_tile = prev_highlighted_tile
                 elif event.button == 3:
                     right_mouse_button_down = True
-                    prev_mouse_x, prev_mouse_y = pygame.mouse.get_pos()
+                    prev_mouse_x, prev_mouse_y = mouse_pos
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     if clicked_tile:
@@ -118,7 +112,7 @@ def game_loop(game_map, game_clock, screen):
 
 
         # Hide the mouse cursor when it is over the map and show it when over the UI
-        mouse_x, mouse_y = pygame.mouse.get_pos()
+        mouse_x, mouse_y = mouse_pos
         if 0 <= mouse_x < GameSettings.GAME_WORLD_WIDTH:
             pygame.mouse.set_visible(False)
         else:
@@ -127,7 +121,7 @@ def game_loop(game_map, game_clock, screen):
         # Handle camera movement
         if right_mouse_button_down:
             if game_map.map.width * TILE_SIZE > GameSettings.GAME_WORLD_WIDTH and game_map.map.height * TILE_SIZE > GameSettings.GAME_WORLD_HEIGHT:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
+                mouse_x, mouse_y = mouse_pos
                 dx, dy = prev_mouse_x - mouse_x, prev_mouse_y - mouse_y
                 camera_offset_x += dx
                 camera_offset_y += dy
@@ -155,8 +149,8 @@ def game_loop(game_map, game_clock, screen):
         # Draw Map and UI
         draw_game(screen, game_map, ui, building_manager.buildings, camera_offset_x, camera_offset_y)
 
-        if building_to_place is not None:
-            screen.blit(building_to_place.tinted_image, (tile_x * TILE_SIZE, tile_y * TILE_SIZE))
+        if building_manager.current_building is not None:
+            screen.blit(building_manager.get_current_preview(), (tile_x * TILE_SIZE, tile_y * TILE_SIZE))
 
         # Update the display
         pygame.display.flip()

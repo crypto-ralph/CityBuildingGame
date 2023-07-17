@@ -69,6 +69,12 @@ class Map:
                 tile.set_elevation((elevation + 1) / 2)  # Normalize elevation to [0, 1]
                 self.tiles[x][y] = tile
 
+    def get_tile_at(self, x, y):
+        if x < 0 or x >= self.width or y < 0 or y >= self.height:
+            return None
+        else:
+            return self.tiles[x][y]
+
     def draw(self, surface, camera_offset_x, camera_offset_y):
         for x in range(self.width):
             for y in range(self.height):
@@ -77,26 +83,3 @@ class Map:
                     x * TILE_SIZE - camera_offset_x,
                     y * TILE_SIZE - camera_offset_y
                 )
-
-    def add_building(self, building):
-        self.buildings.append(building)
-
-    def get_tile_at(self, x, y):
-        if x < 0 or x >= self.width or y < 0 or y >= self.height:
-            return None
-        else:
-            return self.tiles[x][y]
-
-    def get_building_at(self, x, y):
-        for building in self.buildings:
-            if building.x == x and building.y == y:
-                return building
-        return None
-
-
-class GameMap:
-    def __init__(self, width, height):
-        self.map = Map(width, height)
-
-    def draw(self, surface, camera_offset_x, camera_offset_y):
-        self.map.draw(surface, camera_offset_x, camera_offset_y)

@@ -18,7 +18,6 @@ class BuildingPreview:
         return tinted_image
 
 
-
 class Building:
     def __init__(self, name, width, height, cost, image):
         self.name = name
@@ -27,8 +26,6 @@ class Building:
         self.x = None
         self.y = None
         self.cost = cost
-        # self.image = pygame.Surface((width * TILE_SIZE, height * TILE_SIZE))
-        # self.image.fill((255, 0, 0))  # Replace with actual building image
         self.image = image
         self.tinted_image = None
         self.income = 0

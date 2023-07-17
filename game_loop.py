@@ -2,7 +2,6 @@ import sys
 
 import pygame
 
-from building import House
 from managers.asset_manager import AssetManager
 from managers.game_manager import GameManager, BuildingManager
 from game_settings import GameSettings
@@ -46,8 +45,8 @@ def game_loop(game_map, game_clock, screen):
 
     while running:
         # Map boundaries
-        max_camera_offset_x = game_map.map.width * TILE_SIZE - GameSettings.GAME_WORLD_WIDTH
-        max_camera_offset_y = game_map.map.height * TILE_SIZE - GameSettings.GAME_WORLD_HEIGHT
+        max_camera_offset_x = game_map.width * TILE_SIZE - GameSettings.GAME_WORLD_WIDTH
+        max_camera_offset_y = game_map.height * TILE_SIZE - GameSettings.GAME_WORLD_HEIGHT
         min_camera_offset_x = 0
         min_camera_offset_y = 0 - ui.TOP_BAR_HEIGHT
 
@@ -59,7 +58,7 @@ def game_loop(game_map, game_clock, screen):
             (mouse_y + camera_offset_y) // TILE_SIZE,
         )
 
-        tile = game_map.map.get_tile_at(tile_x, tile_y)
+        tile = game_map.get_tile_at(tile_x, tile_y)
 
         dt = game_clock.tick(FPS) / 1000.0
         current_time = pygame.time.get_ticks()
@@ -72,7 +71,7 @@ def game_loop(game_map, game_clock, screen):
             income_update_time = current_time + game_manager.income_update_interval
 
         if building_manager.current_building is not None:
-            building_manager.check_placement(tile_x, tile_y, game_map.map)
+            building_manager.check_placement(tile_x, tile_y, game_map)
 
 
         # Handle events
@@ -83,7 +82,7 @@ def game_loop(game_map, game_clock, screen):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if building_manager.current_building is not None:
-                        tiles_to_check = building_manager.get_tiles_for_building(tile_x, tile_y, game_map.map)
+                        tiles_to_check = building_manager.get_tiles_for_building(tile_x, tile_y, game_map)
                         building_manager.place_building(tile_x, tile_y, tiles_to_check)
 
                     if ui.settings_button.is_clicked(event.pos):
@@ -110,7 +109,6 @@ def game_loop(game_map, game_clock, screen):
                 elif event.button == 3:
                     right_mouse_button_down = False
 
-
         # Hide the mouse cursor when it is over the map and show it when over the UI
         mouse_x, mouse_y = mouse_pos
         if 0 <= mouse_x < GameSettings.GAME_WORLD_WIDTH:
@@ -120,7 +118,7 @@ def game_loop(game_map, game_clock, screen):
 
         # Handle camera movement
         if right_mouse_button_down:
-            if game_map.map.width * TILE_SIZE > GameSettings.GAME_WORLD_WIDTH and game_map.map.height * TILE_SIZE > GameSettings.GAME_WORLD_HEIGHT:
+            if game_map.width * TILE_SIZE > GameSettings.GAME_WORLD_WIDTH and game_map.height * TILE_SIZE > GameSettings.GAME_WORLD_HEIGHT:
                 mouse_x, mouse_y = mouse_pos
                 dx, dy = prev_mouse_x - mouse_x, prev_mouse_y - mouse_y
                 camera_offset_x += dx
@@ -138,11 +136,14 @@ def game_loop(game_map, game_clock, screen):
 
                 prev_mouse_x, prev_mouse_y = mouse_x, mouse_y
 
-        if tile and tile != prev_highlighted_tile:
-            if prev_highlighted_tile:
-                prev_highlighted_tile.set_highlighted(False)
-            tile.set_highlighted(True)
-            prev_highlighted_tile = tile
+        if building_manager.current_building is None:
+            if tile and tile != prev_highlighted_tile:
+                if prev_highlighted_tile:
+                    prev_highlighted_tile.set_highlighted(False)
+                tile.set_highlighted(True)
+                prev_highlighted_tile = tile
+        else:
+            tile.set_highlighted(False)
 
         # Update the game state
         # game_map.update(dt)
@@ -157,6 +158,7 @@ def game_loop(game_map, game_clock, screen):
 
         # Tick the game clock
         game_clock.tick(FPS)
+
 
 def ingame_settings_menu_loop(screen, game_map, ui, camera_offset_x, camera_offset_y):
     menu = SettingsMenu(screen)
@@ -173,7 +175,7 @@ def ingame_settings_menu_loop(screen, game_map, ui, camera_offset_x, camera_offs
                 sys.exit()
 
         # Draw the game
-        draw_game(screen, game_map, ui, camera_offset_x, camera_offset_y)
+        # draw_game(screen, game_map, ui, camera_offset_x, camera_offset_y)
 
         # Draw the settings menu on top
         menu.draw()

@@ -67,7 +67,7 @@ def game_loop(game_map, game_clock, screen):
             game_manager.money += building_manager.get_income()
             ui.money = game_manager.money
             ui.income = building_manager.get_income()
-            ui.citizens = game_manager.citizens
+            ui.citizens = building_manager.get_citizens()
             income_update_time = current_time + game_manager.income_update_interval
 
         if building_manager.current_building is not None:

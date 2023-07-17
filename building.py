@@ -33,6 +33,9 @@ class Building:
     def get_income(self):
         return self.income
 
+    def get_citizens(self):
+        return 0
+
     def draw(self, surface, camera_offset_x, camera_offset_y):
         # Generate shadow for the building
         shadow, shadow_offset = generate_shadow(self.image)
@@ -49,4 +52,8 @@ class House(Building):
         super().__init__(name="House", width=3, height=3, cost=100, image=asset)
         self.x = x
         self.y = y
-        self.income = 10  # Houses generate income for the player
+        self.income = -10
+        self.citizens = 4
+
+    def get_citizens(self):
+        return self.citizens

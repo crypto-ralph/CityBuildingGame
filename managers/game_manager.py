@@ -77,13 +77,19 @@ class BuildingManager:
 
         return tiles_to_check
 
-
     def get_income(self):
         total_income = 0
         for building in self.buildings:
             income = building.get_income()
             total_income += income
         return total_income
+
+    def get_citizens(self):
+        total_citizens = 0
+        for building in self.buildings:
+            income = building.get_citizens()
+            total_citizens += income
+        return total_citizens
 
 
 class GameManager:

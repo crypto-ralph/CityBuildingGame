@@ -4,7 +4,7 @@ import pygame
 
 from game_loop import game_loop
 from game_settings import GameSettings
-from main_menu import main_menu
+from menu_loop import main_menu
 from map import GameMap, MAP_WIDTH, MAP_HEIGHT
 
 pygame.init()
@@ -42,8 +42,3 @@ while running:
 
 # Quit Pygame
 pygame.quit()
-
-# Give credit where credit is due
-print(
-    "Credits: This game was created with the help of ChatGPT, a large language model trained by OpenAI."
-)

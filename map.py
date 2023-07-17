@@ -10,13 +10,6 @@ OCTAVES = 6
 FREQUENCY = 16.0
 WATER_THRESHOLD = 0.05
 
-TILE_IMAGES = {
-    "grass": pygame.image.load("assets/grass.png"),
-    "water": pygame.image.load("assets/water.png"),
-    # "forest": pygame.image.load("forest.png"),
-    # Add more tile types and images as needed
-}
-
 
 class Tile:
     def __init__(self, tile_type="grass"):
@@ -25,6 +18,7 @@ class Tile:
         self.color = self.get_color()
         self.highlighted = False
         self.clicked = False
+        self.occupied = False
 
     def get_color(self):
         if self.type == "grass":
@@ -60,7 +54,6 @@ class Map:
         self.width = width
         self.height = height
         self.tiles = [[Tile() for y in range(height)] for x in range(width)]
-        self.buildings = []
         self.generate_map()
 
     def generate_map(self):
@@ -85,9 +78,6 @@ class Map:
                     y * TILE_SIZE - camera_offset_y
                 )
 
-        for building in self.buildings:
-            building.draw(surface)
-
     def add_building(self, building):
         self.buildings.append(building)
 
@@ -107,10 +97,6 @@ class Map:
 class GameMap:
     def __init__(self, width, height):
         self.map = Map(width, height)
-
-    # def update(self, dt):
-    #     for building in self.map.buildings:
-    #         building.update(dt)
 
     def draw(self, surface, camera_offset_x, camera_offset_y):
         self.map.draw(surface, camera_offset_x, camera_offset_y)

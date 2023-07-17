@@ -75,6 +75,8 @@ class UI:
         self.UI_AREA_X = screen_width - self.UI_AREA_WIDTH
 
     def draw(self, surface):
+        self.draw_top_bar(surface)
+        self.draw_buttons_background(surface)
         self.buttons.draw(surface)
 
     def draw_top_bar(self, screen):
@@ -91,3 +93,11 @@ class UI:
         screen.blit(money_text, (10, 5))
         screen.blit(income_text, (200, 5))
         screen.blit(citizens_text, (400, 5))
+
+    def draw_buttons_background(self, screen):
+        # Draw the UI buttons
+        pygame.draw.rect(
+            screen,
+            self.UI_BACKGROUND_COLOR,
+            (screen.get_height(), 0, self.UI_AREA_WIDTH, self.UI_AREA_HEIGHT),
+        )

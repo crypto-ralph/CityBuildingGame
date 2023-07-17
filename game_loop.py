@@ -145,8 +145,6 @@ def game_loop(game_map, game_clock, screen):
         else:
             tile.set_highlighted(False)
 
-        # Update the game state
-        # game_map.update(dt)
         # Draw Map and UI
         draw_game(screen, game_map, ui, building_manager.buildings, camera_offset_x, camera_offset_y)
 
@@ -173,9 +171,6 @@ def ingame_settings_menu_loop(screen, game_map, ui, camera_offset_x, camera_offs
             elif event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
-        # Draw the game
-        # draw_game(screen, game_map, ui, camera_offset_x, camera_offset_y)
 
         # Draw the settings menu on top
         menu.draw()

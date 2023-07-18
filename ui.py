@@ -1,6 +1,6 @@
 import pygame
 
-from button import SpriteButton
+from button import SpriteButton, ButtonWithInfoBox
 
 # Define the colors for the UI buttons and background
 
@@ -50,13 +50,14 @@ class UI:
             button_color=self.UI_BUTTON_COLOR,
         )
 
-        self.hut_button = SpriteButton(
+        self.hut_button = ButtonWithInfoBox(
             self.UI_AREA_X + 10,
             self.UI_AREA_Y + 190,
             BUTTON_WIDTH,
             BUTTON_HEIGHT,
             "Hut",
             button_color=self.UI_BUTTON_COLOR,
+            info_box_text="Hut infobox"
         )
 
         self.TOP_BAR_HEIGHT = 30
@@ -101,3 +102,14 @@ class UI:
             self.UI_BACKGROUND_COLOR,
             (screen.get_height(), 0, self.UI_AREA_WIDTH, self.UI_AREA_HEIGHT),
         )
+
+    def draw_info_box(self, info_box, position, screen):
+        # Create the text surface
+        text_surface = info_box['font'].render(info_box['text'], True, info_box['text_color'])
+
+        # Calculate the position of the text surface within the info box
+        text_rect = text_surface.get_rect(center=(position[0] + info_box['size'][0] / 2, position[1] + info_box['size'][1] / 2))
+
+        # Draw the info box and the text
+        pygame.draw.rect(screen, info_box['background_color'], (*position, *info_box['size']))
+        screen.blit(text_surface, text_rect)

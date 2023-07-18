@@ -71,4 +71,38 @@ class SpriteButton(Button, pygame.sprite.Sprite):
             self.draw_text()
 
 
+class ButtonWithInfoBox(SpriteButton):
+    def __init__(self, x, y, width, height, text,
+                 text_color=(0, 0, 0),
+                 button_color=(0, 0, 0),
+                 font_name="Arial",
+                 font_size=20,
+                 image=None,
+                 hover_color=(100, 100, 100),
+                 info_box_text="Test",
+                 info_box_font_name="Arial",
+                 info_box_font_size=20,
+                 info_box_size = (200, 100),
+                 info_box_text_color=(0, 0, 0),
+                 info_box_background_color=(255, 255, 255)):
+        super().__init__(x, y, width, height, text, text_color, button_color, font_name, font_size, image, hover_color)
+        self.info_box = {
+            'text': info_box_text,
+            'font': pygame.font.SysFont(info_box_font_name, info_box_font_size),
+            'text_color': info_box_text_color,
+            'background_color': info_box_background_color,
+            'size': info_box_size
+        }
+
+    def set_info_box(self, text, font=None, text_color=None, background_color=None, size=None):
+        self.info_box['text'] = text
+        if font:
+            self.info_box['font'] = font
+        if text_color:
+            self.info_box['text_color'] = text_color
+        if background_color:
+            self.info_box['background_color'] = background_color
+        if size:
+            self.info_box['size'] = size
+
 

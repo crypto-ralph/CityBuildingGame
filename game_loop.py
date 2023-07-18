@@ -73,6 +73,7 @@ def game_loop(game_map, game_clock, screen):
         if building_manager.current_building is not None:
             building_manager.check_placement(tile_x, tile_y, game_map)
 
+        ui.hut_button.handle_hovered(mouse_pos)
 
         # Handle events
         for event in pygame.event.get():
@@ -146,10 +147,7 @@ def game_loop(game_map, game_clock, screen):
             tile.set_highlighted(False)
 
         # Draw Map and UI
-        draw_game(screen, game_map, ui, building_manager.buildings, camera_offset_x, camera_offset_y)
-
-        if building_manager.current_building is not None:
-            screen.blit(building_manager.get_current_preview(), (tile_x * TILE_SIZE, tile_y * TILE_SIZE))
+        draw_game(screen, game_map, ui, building_manager, camera_offset_x, camera_offset_y, tile_x, tile_y)
 
         # Update the display
         pygame.display.flip()
@@ -179,9 +177,17 @@ def ingame_settings_menu_loop(screen, game_map, ui, camera_offset_x, camera_offs
         pygame.display.flip()
 
 
-def draw_game(screen, game_map, ui, buildings, camera_offset_x, camera_offset_y):
+def draw_game(screen, game_map, ui, building_manager, camera_offset_x, camera_offset_y, tile_x, tile_y):
     screen.fill((0, 0, 0))
     game_map.draw(screen, camera_offset_x, camera_offset_y)
     ui.draw(screen)
-    for building in buildings:
+    for building in building_manager.buildings:
         building.draw(screen, camera_offset_x, camera_offset_y)
+
+    if building_manager.current_building is not None:
+        screen.blit(building_manager.get_current_preview(), (tile_x * TILE_SIZE, tile_y * TILE_SIZE))
+
+    if ui.hut_button.hovered:
+        # draw info box here
+        info_box_position = (ui.hut_button.rect.x, ui.hut_button.rect.y - ui.hut_button.info_box['size'][1] - 10)
+        ui.draw_info_box(ui.hut_button.info_box, info_box_position, screen)

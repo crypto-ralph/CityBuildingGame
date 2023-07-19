@@ -1,7 +1,7 @@
 import pygame
 
-from map import TILE_SIZE, MAP_HEIGHT, MAP_WIDTH
-from effects import generate_shadow
+from map import TILE_SIZE
+from rendering.effects import generate_shadow
 
 
 class BuildingPreview:
@@ -29,12 +29,8 @@ class Building:
         self.image = image
         self.tinted_image = None
         self.income = 0
+        self.citizens = 0
 
-    def get_income(self):
-        return self.income
-
-    def get_citizens(self):
-        return 0
 
     def draw(self, surface, camera_offset_x, camera_offset_y):
         # Generate shadow for the building
@@ -48,12 +44,14 @@ class Building:
 
 
 class House(Building):
+    income = -10
+    citizens = 4
+    name = "Simple Hut"
     def __init__(self, asset, x=None, y=None):
-        super().__init__(name="House", width=3, height=3, cost=100, image=asset)
+        super().__init__(name=self.name, width=3, height=3, cost=100, image=asset)
         self.x = x
         self.y = y
         self.income = -10
         self.citizens = 4
 
-    def get_citizens(self):
-        return self.citizens
+

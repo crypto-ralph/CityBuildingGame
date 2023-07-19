@@ -1,8 +1,6 @@
-import pygame
-
-from building import Building, BuildingPreview, House
+from building import BuildingPreview, House
 from managers.asset_manager import AssetManager
-from map import Map, Tile, TILE_SIZE
+from map import Map
 
 
 class BuildingManager:
@@ -37,7 +35,7 @@ class BuildingManager:
     def remove_building(self, building):
         self.buildings.remove(building)
 
-    def check_placement(self, tile_x, tile_y, game_map):
+    def check_placement(self, tile_x, tile_y, mouse_x, mouse_y, game_map):
         if self.current_building:
             tiles_to_check = self.get_tiles_for_building(tile_x, tile_y, game_map)
             self.building_can_be_placed = self.can_place(tiles_to_check)
@@ -77,17 +75,17 @@ class BuildingManager:
 
         return tiles_to_check
 
-    def get_income(self):
+    def get_total_income(self):
         total_income = 0
         for building in self.buildings:
-            income = building.get_income()
+            income = building.income
             total_income += income
         return total_income
 
     def get_citizens(self):
         total_citizens = 0
         for building in self.buildings:
-            income = building.get_citizens()
+            income = building.citizens
             total_citizens += income
         return total_citizens
 

@@ -5,9 +5,9 @@ import pygame
 from managers.asset_manager import AssetManager
 from managers.game_manager import GameManager, BuildingManager
 from game_settings import GameSettings
-from interface.settings_menu import SettingsMenu
+from ui.settings_menu_ui import SettingsMenu
+from ui.in_game_ui import UI
 from map import TILE_SIZE
-from ui import UI
 
 FPS = 60
 
@@ -64,14 +64,14 @@ def game_loop(game_map, game_clock, screen):
         current_time = pygame.time.get_ticks()
         if current_time >= income_update_time:
             # Update income if the interval has passed
-            game_manager.money += building_manager.get_income()
+            game_manager.money += building_manager.get_total_income()
             ui.money = game_manager.money
-            ui.income = building_manager.get_income()
+            ui.income = building_manager.get_total_income()
             ui.citizens = building_manager.get_citizens()
             income_update_time = current_time + game_manager.income_update_interval
 
         if building_manager.current_building is not None:
-            building_manager.check_placement(tile_x, tile_y, game_map)
+            building_manager.check_placement(tile_x, tile_y, mouse_x, mouse_y, game_map)
 
         ui.hut_button.handle_hovered(mouse_pos)
 
@@ -110,13 +110,6 @@ def game_loop(game_map, game_clock, screen):
                 elif event.button == 3:
                     right_mouse_button_down = False
 
-        # Hide the mouse cursor when it is over the map and show it when over the UI
-        mouse_x, mouse_y = mouse_pos
-        if 0 <= mouse_x < GameSettings.GAME_WORLD_WIDTH:
-            pygame.mouse.set_visible(False)
-        else:
-            pygame.mouse.set_visible(True)
-
         # Handle camera movement
         if right_mouse_button_down:
             if game_map.width * TILE_SIZE > GameSettings.GAME_WORLD_WIDTH and game_map.height * TILE_SIZE > GameSettings.GAME_WORLD_HEIGHT:
@@ -147,7 +140,7 @@ def game_loop(game_map, game_clock, screen):
             tile.set_highlighted(False)
 
         # Draw Map and UI
-        draw_game(screen, game_map, ui, building_manager, camera_offset_x, camera_offset_y, tile_x, tile_y)
+        draw_game(screen, game_map, ui, building_manager, camera_offset_x, camera_offset_y, tile_x, tile_y, mouse_pos)
 
         # Update the display
         pygame.display.flip()
@@ -177,17 +170,28 @@ def ingame_settings_menu_loop(screen, game_map, ui, camera_offset_x, camera_offs
         pygame.display.flip()
 
 
-def draw_game(screen, game_map, ui, building_manager, camera_offset_x, camera_offset_y, tile_x, tile_y):
+def draw_game(screen, game_map, ui, building_manager, camera_offset_x, camera_offset_y, tile_x, tile_y, mouse_pos):
     screen.fill((0, 0, 0))
+
+    # Hide the mouse cursor when it is over the map and show it when over the UI
+    mouse_x, mouse_y = mouse_pos
+    if 0 <= mouse_x < GameSettings.GAME_WORLD_WIDTH:
+        pygame.mouse.set_visible(False)
+    else:
+        pygame.mouse.set_visible(True)
+
     game_map.draw(screen, camera_offset_x, camera_offset_y)
-    ui.draw(screen)
+
     for building in building_manager.buildings:
         building.draw(screen, camera_offset_x, camera_offset_y)
 
-    if building_manager.current_building is not None:
-        screen.blit(building_manager.get_current_preview(), (tile_x * TILE_SIZE, tile_y * TILE_SIZE))
+
+    if building_manager.current_building is not None and mouse_x < GameSettings.GAME_WORLD_WIDTH:
+        screen.blit(building_manager.get_current_preview(), (tile_x * TILE_SIZE - camera_offset_x, tile_y * TILE_SIZE - camera_offset_y))
+
+    ui.draw(screen)
+
 
     if ui.hut_button.hovered:
         # draw info box here
-        info_box_position = (ui.hut_button.rect.x, ui.hut_button.rect.y - ui.hut_button.info_box['size'][1] - 10)
-        ui.draw_info_box(ui.hut_button.info_box, info_box_position, screen)
+        ui.draw_info_box(ui.hut_button.info_box, screen)

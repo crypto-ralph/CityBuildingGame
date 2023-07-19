@@ -2,8 +2,8 @@ import sys
 
 import pygame
 from game_settings import GameSettings
-from interface.main_menu import MainMenu
-from interface.settings_menu import SettingsMenu
+from ui.main_menu_ui import MainMenu
+from ui.settings_menu_ui import SettingsMenu
 
 UI_BUTTON_COLOR = (150, 150, 150)
 HOVER_BUTTON_COLOR = (200, 200, 200)

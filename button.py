@@ -84,6 +84,7 @@ class ButtonWithInfoBox(SpriteButton):
                  info_box_font_size=20,
                  info_box_size = (200, 100),
                  info_box_text_color=(0, 0, 0),
+                 info_box_position = None,
                  info_box_background_color=(255, 255, 255)):
         super().__init__(x, y, width, height, text, text_color, button_color, font_name, font_size, image, hover_color)
         self.info_box = {
@@ -91,7 +92,8 @@ class ButtonWithInfoBox(SpriteButton):
             'font': pygame.font.SysFont(info_box_font_name, info_box_font_size),
             'text_color': info_box_text_color,
             'background_color': info_box_background_color,
-            'size': info_box_size
+            'size': info_box_size,
+            'position': (x, y - info_box_size[1] - 10) if info_box_position is None else info_box_position,
         }
 
     def set_info_box(self, text, font=None, text_color=None, background_color=None, size=None):

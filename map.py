@@ -1,14 +1,46 @@
-import math
+"""
+This module contains the code for generating a game map using Perlin noise.
+
+Classes:
+
+    Tile: Represents a single tile on the map. Each tile has a type (e.g., "grass", "water"),
+          an elevation, and a color that depends on its type and elevation.
+
+    Map: Represents the entire game map. The map is a 2D grid of Tile objects.
+
+Constants:
+
+    MAP_WIDTH, MAP_HEIGHT: The dimensions of the map, in tiles.
+
+    TILE_SIZE: The size of a single tile, in pixels.
+
+    OCTAVES: The number of octaves to use in the Perlin noise function. Increasing this
+             value will increase the amount of detail in the terrain.
+
+    FREQUENCY: The frequency of the Perlin noise function. Increasing this value will
+               make the terrain features smaller and more frequent.
+
+    WATER_THRESHOLD: The threshold elevation below which a tile is considered water.
+                     Perlin noise returns values in the range -1 to 1. Adjust this
+                     value to control the ratio of water to land on the map.
+                     For example:
+                        -1 results in nearly 100% land.
+                         0 results in about 50% water and 50% land.
+                         1 results in nearly 100% water.
+                     Note: The distribution can vary a bit from map to map.
+"""
+
 import random
 import pygame
 import noise
 
-MAP_WIDTH = 35
-MAP_HEIGHT = 35
+MAP_WIDTH = 50
+MAP_HEIGHT = 50
 TILE_SIZE = 24
 OCTAVES = 6
 FREQUENCY = 16.0
-WATER_THRESHOLD = 0.05
+WATER_THRESHOLD = -0.2
+BEACH_THRESHOLD = -0.14  # Adjust this to control how wide the beaches are
 
 
 class Tile:
@@ -27,6 +59,8 @@ class Tile:
         elif self.type == "water":
             blue = int(255 * (1 - self.elevation))
             return 0, 0, max(0, blue)
+        elif self.type == "sand":
+            return 238, 214, 175
         else:
             # default color is black
             return 0, 0, 0
@@ -54,6 +88,8 @@ class Map:
         self.width = width
         self.height = height
         self.tiles = [[Tile() for y in range(height)] for x in range(width)]
+        self.noise_offset_x = random.uniform(0, 1000)  # Add these lines
+        self.noise_offset_y = random.uniform(0, 1000)  # Add these lines
         self.generate_map()
 
     def generate_map(self):
@@ -61,11 +97,14 @@ class Map:
         for x in range(self.width):
             for y in range(self.height):
                 elevation = noise.pnoise2(
-                    x / FREQUENCY, y / FREQUENCY, OCTAVES
+                    (x + self.noise_offset_x) / FREQUENCY,  # Modify this line
+                    (y + self.noise_offset_y) / FREQUENCY,  # Modify this line
                 )
                 tile = Tile()
                 if elevation < WATER_THRESHOLD:
                     tile.type = "water"
+                elif elevation < BEACH_THRESHOLD:
+                    tile.type = "sand"
                 tile.set_elevation((elevation + 1) / 2)  # Normalize elevation to [0, 1]
                 self.tiles[x][y] = tile
 

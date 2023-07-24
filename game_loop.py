@@ -85,16 +85,16 @@ def game_loop(game_map, game_clock, screen):
                     if building_manager.current_building is not None:
                         tiles_to_check = building_manager.get_tiles_for_building(tile_x, tile_y, game_map)
                         building_manager.place_building(tile_x, tile_y, tiles_to_check)
-
                     if ui.settings_button.is_clicked(event.pos):
                         # Pause the game loop and enter the settings loop
                         ingame_settings_menu_loop(screen, game_map, ui, camera_offset_x, camera_offset_y)
-
                     if ui.ui_exit_button.is_clicked(event.pos):
                         GameSettings.MENU_STATE = "menu"
                         running = False
                     if ui.hut_button.is_clicked(event.pos):
                         building_manager.select_building("hut")
+                    if ui.road_button.is_clicked(event.pos):
+                        building_manager.select_building("road")
                     else:
                         if prev_highlighted_tile:
                             prev_highlighted_tile.set_clicked(True)

@@ -1,6 +1,10 @@
-from building import BuildingPreview, House
-from managers.asset_manager import AssetManager
+from building import BuildingPreview, House, Road
+from managers.asset_manager import AssetManager, load_road_subset
 from map import Map
+
+mapping = {
+    "house": House
+}
 
 
 class BuildingManager:
@@ -13,7 +17,13 @@ class BuildingManager:
 
     def select_building(self, building_type: str):
         asset = self.asset_manager.get_asset(building_type)
-        self.current_building = House(asset)
+
+        if building_type == "hut":
+            self.current_building = House(asset)
+        elif building_type == "road":
+            asset = load_road_subset(self.asset_manager)
+            self.current_building = Road(asset)
+
         self.building_preview = BuildingPreview(asset)
 
     def clear_current_building(self):

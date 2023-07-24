@@ -1,9 +1,13 @@
+import random
+
 import pygame
 
 ASSET_PATHS = {
     'hut': 'assets/buildings/hut.png',
+    'road': 'assets/buildings/road.png',
     # You can add more assets here as needed
 }
+
 
 class AssetManager:
     def __init__(self):
@@ -23,3 +27,14 @@ class AssetManager:
             self.assets[name] = pygame.image.load(path).convert_alpha()
         else:
             raise ValueError(f"No asset found for name: {name}")
+
+
+def load_road_subset(asset_manager: AssetManager):
+    num = random.choice([4, 5])
+    road_map = asset_manager.get_asset('road')
+
+    sprite_width = 24
+    sprite_height = 24
+
+    sprite = road_map.subsurface(pygame.Rect(num * sprite_width, 0, sprite_width, sprite_height))
+    return sprite

@@ -19,6 +19,7 @@ def create_hut_button(x: int, y: int) -> ButtonWithInfoBox:
         info_box_position=(x + 100 - 20, y + 40),
     )
 
+
 def create_ui_exit_button(x: int, y: int) -> SpriteButton:
     return SpriteButton(
         x=x,
@@ -28,3 +29,15 @@ def create_ui_exit_button(x: int, y: int) -> SpriteButton:
         text="Exit",
         button_color=(150, 150, 150)
     )
+
+
+def create_road_button(x: int, y: int) -> SpriteButton:
+    return SpriteButton(
+        x=x,
+        y=y,
+        width=100,
+        height=40,
+        text="Road",
+        button_color=(150, 150, 150)
+    )
+

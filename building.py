@@ -47,11 +47,26 @@ class House(Building):
     income = -10
     citizens = 4
     name = "Simple Hut"
+
     def __init__(self, asset, x=None, y=None):
         super().__init__(name=self.name, width=3, height=3, cost=100, image=asset)
         self.x = x
         self.y = y
         self.income = -10
         self.citizens = 4
+
+
+class Road(Building):
+    income = 0
+    citizens = 0
+    name = "road"
+
+    def __init__(self, asset, x=None, y=None):
+        super().__init__(name=self.name, width=1, height=1, cost=100, image=asset)
+        self.x = x
+        self.y = y
+        self.income = -10
+        self.citizens = 4
+
 
 

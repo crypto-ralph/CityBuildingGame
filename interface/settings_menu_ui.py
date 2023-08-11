@@ -63,11 +63,6 @@ class SettingsMenu:
         self.menu_y = 0 + (GameSettings.SCREEN_HEIGHT * 0.1)
 
     def draw(self):
-        # First fill the surface with the game visible or a black screen for the main menu
-        # self.screen.fill(self.bg_color)
-        # Then draw the rectangle
         pygame.draw.rect(self.screen, self.rect_color, self.menu_rect)
-        # Then draw your menu elements
         self.buttons.draw(self.screen)
-        # Rest of your draw code...
         pygame.display.flip()

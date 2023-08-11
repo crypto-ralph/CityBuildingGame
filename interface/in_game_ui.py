@@ -1,7 +1,7 @@
 import pygame
 
 from button import SpriteButton
-from ui.button_factory import create_hut_button, create_ui_exit_button, create_road_button
+from interface.button_factory import create_hut_button, create_ui_exit_button, create_road_button
 
 BUTTON_WIDTH = 100
 BUTTON_HEIGHT = 40
@@ -12,6 +12,7 @@ class UI:
             self,
             screen_width,
             screen_height,
+            asset_manager,
             ui_area_width_ratio=0.25,
             ui_button_color=(255, 255, 255),
             ui_background_color=(0, 0, 0),
@@ -47,11 +48,12 @@ class UI:
         self.hut_button = create_hut_button(
             self.UI_AREA_X + 10,
             self.UI_AREA_Y + 190,
+            image=asset_manager.get_asset("hut")
         )
 
         self.road_button = create_road_button(
-            self.UI_AREA_X + 10,
-            self.UI_AREA_Y + 250,
+            self.UI_AREA_X + 100,
+            self.UI_AREA_Y + 190,
         )
 
         self.TOP_BAR_HEIGHT = 30
@@ -94,11 +96,10 @@ class UI:
         screen.blit(citizens_text, (400, 5))
 
     def draw_buttons_background(self, screen):
-        # Draw the UI buttons
         pygame.draw.rect(
             screen,
             self.UI_BACKGROUND_COLOR,
-            (screen.get_height(), 0, self.UI_AREA_WIDTH, self.UI_AREA_HEIGHT),
+            (self.UI_AREA_X, 0, self.UI_AREA_WIDTH, self.UI_AREA_HEIGHT),
         )
 
     @staticmethod

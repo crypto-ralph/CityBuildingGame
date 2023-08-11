@@ -97,8 +97,8 @@ class Map:
         for x in range(self.width):
             for y in range(self.height):
                 elevation = noise.pnoise2(
-                    (x + self.noise_offset_x) / FREQUENCY,  # Modify this line
-                    (y + self.noise_offset_y) / FREQUENCY,  # Modify this line
+                    (x + self.noise_offset_x) / FREQUENCY,
+                    (y + self.noise_offset_y) / FREQUENCY,
                 )
                 tile = Tile()
                 if elevation < WATER_THRESHOLD:

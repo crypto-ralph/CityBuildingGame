@@ -36,16 +36,33 @@ class SpriteButton(Button, pygame.sprite.Sprite):
                  button_color=(0, 0, 0),
                  font_name="Arial",
                  font_size=20,
-                 image=None,
-                 hover_color=(100, 100, 100)):
+                 asset_image=None,
+                 hover_color=(100, 100, 100),
+                 border = False,
+                 border_color = (0, 0, 0),
+                 border_width = 1
+    ):
+        if asset_image is not None:
+            image_rect = asset_image.get_rect()
+            width = image_rect.width
+            height = image_rect.height
         Button.__init__(self, x, y, width, height, text, text_color=text_color, font_name=font_name,
                         font_size=font_size, button_color=button_color, hover_color=hover_color)
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((width, height))
-        self.image.fill(self.button_color)
-        if image is not None:
-            self.image.blit(image, (0, 0))
-        self.draw_text()
+        self.border_width = border_width
+        self.asset_image = asset_image
+        self.image = pygame.Surface((self.width, self.height))
+        if asset_image is not None:
+            self.image.fill(self.button_color)
+            self.image.blit(asset_image, (0, 0))
+        else:
+            self.image.fill(self.button_color)
+            self.draw_text()
+
+        self.border = border
+        self.border_color = border_color
+        if self.border:
+            pygame.draw.rect(self.image, self.border_color, self.image.get_rect(), self.border_width)
 
     def draw_text(self):
         """Draws the button text on the specified surface."""
@@ -58,11 +75,20 @@ class SpriteButton(Button, pygame.sprite.Sprite):
         if self.is_clicked(pos) and not self.hovered:
             self.hovered = True
             self.image.fill(self.hover_color)
-            self.draw_text()
+            if self.asset_image is not None:
+                self.image.blit(self.asset_image, (0, 0))
+            else:
+                self.draw_text()
         elif not self.is_clicked(pos) and self.hovered:
             self.hovered = False
-            self.image.fill(self.button_color)
-            self.draw_text()
+            if self.asset_image is not None:
+                self.image.fill(self.button_color)
+                self.image.blit(self.asset_image, (0, 0))
+            else:
+                self.image.fill(self.button_color)
+                self.draw_text()
+        if self.border:
+            pygame.draw.rect(self.image, self.border_color, self.image.get_rect(), self.border_width)
 
     def set_color(self, color):
         if color != self.button_color:
@@ -78,6 +104,9 @@ class ButtonWithInfoBox(SpriteButton):
                  font_name="Arial",
                  font_size=20,
                  image=None,
+                 border=False,
+                 border_color=(0, 0, 0),
+                 border_width=1,
                  hover_color=(100, 100, 100),
                  info_box_text="Test",
                  info_box_font_name="Arial",
@@ -86,7 +115,7 @@ class ButtonWithInfoBox(SpriteButton):
                  info_box_text_color=(0, 0, 0),
                  info_box_position = None,
                  info_box_background_color=(255, 255, 255)):
-        super().__init__(x, y, width, height, text, text_color, button_color, font_name, font_size, image, hover_color)
+        super().__init__(x, y, width, height, text, text_color, button_color, font_name, font_size, image, hover_color, border, border_color, border_width)
         self.info_box = {
             'text': info_box_text,
             'font': pygame.font.SysFont(info_box_font_name, info_box_font_size),

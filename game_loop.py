@@ -5,8 +5,8 @@ import pygame
 from managers.asset_manager import AssetManager
 from managers.game_manager import GameManager, BuildingManager
 from game_settings import GameSettings
-from ui.settings_menu_ui import SettingsMenu
-from ui.in_game_ui import UI
+from interface.settings_menu_ui import SettingsMenu
+from interface.in_game_ui import UI
 from map import TILE_SIZE
 
 FPS = 60
@@ -19,12 +19,13 @@ def game_loop(game_map, game_clock, screen):
     # Create managers here to avoid keeping values
     game_manager = GameManager()
     asset_manager = AssetManager()
-    building_manager = BuildingManager(asset_manager)
+    building_manager = BuildingManager(asset_manager, game_manager)
 
     # Create the UI buttons
     ui = UI(
         GameSettings.SCREEN_WIDTH,
         GameSettings.SCREEN_HEIGHT,
+        asset_manager,
         ui_button_color=UI_BUTTON_COLOR,
         ui_background_color=UI_BACKGROUND_COLOR,
     )
@@ -60,15 +61,15 @@ def game_loop(game_map, game_clock, screen):
 
         tile = game_map.get_tile_at(tile_x, tile_y)
 
-        dt = game_clock.tick(FPS) / 1000.0
         current_time = pygame.time.get_ticks()
         if current_time >= income_update_time:
             # Update income if the interval has passed
-            game_manager.money += building_manager.get_total_income()
-            ui.money = game_manager.money
-            ui.income = building_manager.get_total_income()
-            ui.citizens = building_manager.get_citizens()
+            game_manager.money += game_manager.income
             income_update_time = current_time + game_manager.income_update_interval
+
+        ui.money = game_manager.money
+        ui.income = game_manager.income
+        ui.citizens = game_manager.citizens
 
         if building_manager.current_building is not None:
             building_manager.check_placement(tile_x, tile_y, mouse_x, mouse_y, game_map)
@@ -86,7 +87,6 @@ def game_loop(game_map, game_clock, screen):
                         tiles_to_check = building_manager.get_tiles_for_building(tile_x, tile_y, game_map)
                         building_manager.place_building(tile_x, tile_y, tiles_to_check)
                     if ui.settings_button.is_clicked(event.pos):
-                        # Pause the game loop and enter the settings loop
                         ingame_settings_menu_loop(screen, game_map, ui, camera_offset_x, camera_offset_y)
                     if ui.ui_exit_button.is_clicked(event.pos):
                         GameSettings.MENU_STATE = "menu"
@@ -185,6 +185,9 @@ def draw_game(screen, game_map, ui, building_manager, camera_offset_x, camera_of
     for building in building_manager.buildings:
         building.draw(screen, camera_offset_x, camera_offset_y)
 
+    for road in building_manager.roads:
+        road.draw(screen, camera_offset_x, camera_offset_y)
+
 
     if building_manager.current_building is not None and mouse_x < GameSettings.GAME_WORLD_WIDTH:
         screen.blit(building_manager.get_current_preview(), (tile_x * TILE_SIZE - camera_offset_x, tile_y * TILE_SIZE - camera_offset_y))
@@ -194,4 +197,4 @@ def draw_game(screen, game_map, ui, building_manager, camera_offset_x, camera_of
 
     if ui.hut_button.hovered:
         # draw info box here
-        ui.draw_info_box(ui.hut_button.info_box, screen)
+        ui.draw_info_box(ui.hut_button.info_box, screen, line_spacing=7)

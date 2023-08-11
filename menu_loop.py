@@ -2,8 +2,8 @@ import sys
 
 import pygame
 from game_settings import GameSettings
-from ui.main_menu_ui import MainMenu
-from ui.settings_menu_ui import SettingsMenu
+from interface.main_menu_ui import MainMenu
+from interface.settings_menu_ui import SettingsMenu
 
 UI_BUTTON_COLOR = (150, 150, 150)
 HOVER_BUTTON_COLOR = (200, 200, 200)
@@ -50,7 +50,8 @@ def main_menu(screen):
                         running = False
                     elif menu.settings_button.is_clicked(event.pos):
                         # Open the settings window
-                        settings_menu_loop(screen)
+                        GameSettings.MENU_STATE = "settings"
+                        running = False
                     elif menu.exit_button.is_clicked(event.pos):
                         GameSettings.MENU_STATE = "exit_game"
                         running = False
@@ -66,7 +67,7 @@ def main_menu(screen):
         menu.draw()
 
 
-def settings_menu_loop(screen):
+def settings_menu(screen):
     menu = SettingsMenu(screen)
 
     running = True
@@ -92,6 +93,7 @@ def settings_menu_loop(screen):
                     for button in menu.buttons:
                         if button.is_clicked(event.pos):
                             if button.text == "Back":
+                                GameSettings.MENU_STATE = "menu"
                                 running = False
                                 continue
                             # Set the resolution and update the screen

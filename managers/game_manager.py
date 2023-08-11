@@ -2,18 +2,29 @@ from building import BuildingPreview, House, Road
 from managers.asset_manager import AssetManager, load_road_subset
 from map import Map
 
-mapping = {
-    "house": House
+buildings = {
+    "hut": House
 }
+
+class GameManager:
+    # Set up the income update interval
+    income_update_interval = 10000  # 10 seconds
+
+    def __init__(self, money: int = 10000):
+        self.money = money
+        self.citizens = 0
+        self.income = 0
 
 
 class BuildingManager:
-    def __init__(self, asset_manager: AssetManager):
+    def __init__(self, asset_manager: AssetManager, game_manager: GameManager):
         self.asset_manager = asset_manager
+        self.game_manager = game_manager
         self.current_building = None
         self.building_preview = None
         self.building_can_be_placed = False
         self.buildings = []
+        self.roads = []
 
     def select_building(self, building_type: str):
         asset = self.asset_manager.get_asset(building_type)
@@ -39,7 +50,15 @@ class BuildingManager:
             for tile in tiles:
                 tile.occupied = True
 
-            self.buildings.append(self.current_building)
+            if type(self.current_building) == Road:
+                self.roads.append(self.current_building)
+            else:
+                self.buildings.append(self.current_building)
+
+            if hasattr(self.current_building, "citizens"):
+                self.game_manager.citizens += self.current_building.citizens
+            self.game_manager.money -= self.current_building.cost
+            self.game_manager.income += self.current_building.income
             self.clear_current_building()
 
     def remove_building(self, building):
@@ -85,12 +104,6 @@ class BuildingManager:
 
         return tiles_to_check
 
-    def get_total_income(self):
-        total_income = 0
-        for building in self.buildings:
-            income = building.income
-            total_income += income
-        return total_income
 
     def get_citizens(self):
         total_citizens = 0
@@ -98,15 +111,3 @@ class BuildingManager:
             income = building.citizens
             total_citizens += income
         return total_citizens
-
-
-class GameManager:
-    # Set up the income update interval
-    income_update_interval = 10000  # 10 seconds
-
-    def __init__(self, money: int = 10000):
-        self.money = money
-        self.citizens = 0
-
-    def add_income(self, income):
-        self.money += income

@@ -19,18 +19,16 @@ class BuildingPreview:
 
 
 class Building:
-    def __init__(self, name, width, height, cost, image):
+    """Represents a building in the game."""
+    def __init__(self, name, width, height, image, income, citizens):
         self.name = name
         self.width = width
         self.height = height
         self.x = None
         self.y = None
-        self.cost = cost
         self.image = image
-        self.tinted_image = None
-        self.income = 0
-        self.citizens = 0
-
+        self.income = income
+        self.citizens = citizens
 
     def draw(self, surface, camera_offset_x, camera_offset_y):
         # Generate shadow for the building
@@ -44,29 +42,28 @@ class Building:
 
 
 class House(Building):
-    income = -10
+    income = -20
     citizens = 4
+    cost = 500
     name = "Simple Hut"
 
     def __init__(self, asset, x=None, y=None):
-        super().__init__(name=self.name, width=3, height=3, cost=100, image=asset)
+        super().__init__(name=self.name, width=3, height=3, image=asset, income=self.income, citizens=self.citizens)
         self.x = x
         self.y = y
-        self.income = -10
-        self.citizens = 4
 
 
-class Road(Building):
-    income = 0
-    citizens = 0
-    name = "road"
+class Road:
+    cost = 50
+    name = "Road"
 
     def __init__(self, asset, x=None, y=None):
-        super().__init__(name=self.name, width=1, height=1, cost=100, image=asset)
         self.x = x
         self.y = y
-        self.income = -10
-        self.citizens = 4
+        self.width = 1
+        self.height = 1
+        self.image = asset
 
-
+    def draw(self, surface, camera_offset_x, camera_offset_y):
+        surface.blit(self.image, ((self.x * TILE_SIZE) - camera_offset_x, (self.y * TILE_SIZE) - camera_offset_y))
 

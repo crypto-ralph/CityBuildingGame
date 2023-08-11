@@ -23,7 +23,7 @@ class SettingsMenu:
 
         self.menu_rect = pygame.Rect(self.menu_x, self.menu_y, self.menu_width, self.menu_height)
 
-        self.resolutions = [(640, 480), (800, 600), (1024, 768), (1280, 720), (1920, 1080)]
+        self.resolutions = [(800, 600), (1024, 768), (1280, 720), (1920, 1080)]
         self.buttons = pygame.sprite.Group()
 
         for i, resolution in enumerate(self.resolutions):
@@ -56,6 +56,7 @@ class SettingsMenu:
 
         self.back_button.rect.x = GameSettings.SCREEN_WIDTH // 2 - self.BUTTON_WIDTH // 2
         self.back_button.rect.y = self.menu_height - 1 * self.BUTTON_PADDING
+
 
         # resize menu rect
         self.menu_rect.x = (GameSettings.SCREEN_WIDTH - self.menu_width) // 2

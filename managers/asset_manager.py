@@ -3,7 +3,7 @@ import random
 import pygame
 
 ASSET_PATHS = {
-    'hut': 'assets/buildings/hut.png',
+    'hut': 'assets/buildings/hut2.png',
     'road': 'assets/buildings/road.png',
     # You can add more assets here as needed
 }

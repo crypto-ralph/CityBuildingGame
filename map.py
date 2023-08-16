@@ -50,7 +50,7 @@ class Tile:
         self.color = self.get_color()
         self.highlighted = False
         self.clicked = False
-        self.occupied = False
+        self.occupied = None
 
     def get_color(self):
         if self.type == "grass":

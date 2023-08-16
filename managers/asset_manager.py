@@ -5,6 +5,7 @@ import pygame
 ASSET_PATHS = {
     'hut': 'assets/buildings/hut2.png',
     'road': 'assets/buildings/road.png',
+    'church': 'assets/buildings/church.png',
     # You can add more assets here as needed
 }
 

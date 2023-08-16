@@ -7,6 +7,7 @@ from managers.game_manager import GameManager, BuildingManager
 from game_settings import GameSettings
 from interface.settings_menu_ui import SettingsMenu
 from interface.in_game_ui import UI
+from managers.road_manager import RoadManager
 from map import TILE_SIZE
 
 FPS = 60
@@ -19,6 +20,7 @@ def game_loop(game_map, game_clock, screen):
     # Create managers here to avoid keeping values
     game_manager = GameManager()
     asset_manager = AssetManager()
+    road_manager = RoadManager(asset_manager)
     building_manager = BuildingManager(asset_manager, game_manager)
 
     # Create the UI buttons
@@ -61,6 +63,10 @@ def game_loop(game_map, game_clock, screen):
 
         tile = game_map.get_tile_at(tile_x, tile_y)
 
+        if building_manager.current_building is not None:
+            building_manager.check_placement(tile_x, tile_y, mouse_x, mouse_y, game_map)
+
+
         current_time = pygame.time.get_ticks()
         if current_time >= income_update_time:
             # Update income if the interval has passed
@@ -71,10 +77,8 @@ def game_loop(game_map, game_clock, screen):
         ui.income = game_manager.income
         ui.citizens = game_manager.citizens
 
-        if building_manager.current_building is not None:
-            building_manager.check_placement(tile_x, tile_y, mouse_x, mouse_y, game_map)
-
-        ui.hut_button.handle_hovered(mouse_pos)
+        for button in ui.buttons:
+            button.handle_hovered(mouse_pos)
 
         # Handle events
         for event in pygame.event.get():
@@ -86,6 +90,11 @@ def game_loop(game_map, game_clock, screen):
                     if building_manager.current_building is not None:
                         tiles_to_check = building_manager.get_tiles_for_building(tile_x, tile_y, game_map)
                         building_manager.place_building(tile_x, tile_y, tiles_to_check)
+                    if road_manager.road_building_mode:
+                        if road_manager.start_point is None:
+                            road_manager.start_building((tile_x, tile_y))
+                        else:
+                            road_manager.build_road()
                     if ui.settings_button.is_clicked(event.pos):
                         ingame_settings_menu_loop(screen, game_map, ui, camera_offset_x, camera_offset_y)
                     if ui.ui_exit_button.is_clicked(event.pos):
@@ -93,8 +102,10 @@ def game_loop(game_map, game_clock, screen):
                         running = False
                     if ui.hut_button.is_clicked(event.pos):
                         building_manager.select_building("hut")
+                    if ui.church_button.is_clicked(event.pos):
+                        building_manager.select_building("church")
                     if ui.road_button.is_clicked(event.pos):
-                        building_manager.select_building("road")
+                        road_manager.toggle_road_building_mode()
                     else:
                         if prev_highlighted_tile:
                             prev_highlighted_tile.set_clicked(True)
@@ -109,6 +120,9 @@ def game_loop(game_map, game_clock, screen):
                         clicked_tile = None
                 elif event.button == 3:
                     right_mouse_button_down = False
+            elif event.type == pygame.MOUSEMOTION:
+                if road_manager.road_building_mode and road_manager.start_point is not None:
+                    road_manager.set_preview_path(game_map, (tile_x, tile_y))
 
         # Handle camera movement
         if right_mouse_button_down:
@@ -140,7 +154,7 @@ def game_loop(game_map, game_clock, screen):
             tile.set_highlighted(False)
 
         # Draw Map and UI
-        draw_game(screen, game_map, ui, building_manager, camera_offset_x, camera_offset_y, tile_x, tile_y, mouse_pos)
+        draw_game(screen, game_map, ui, building_manager, road_manager, camera_offset_x, camera_offset_y, tile_x, tile_y, mouse_pos)
 
         # Update the display
         pygame.display.flip()
@@ -170,7 +184,7 @@ def ingame_settings_menu_loop(screen, game_map, ui, camera_offset_x, camera_offs
         pygame.display.flip()
 
 
-def draw_game(screen, game_map, ui, building_manager, camera_offset_x, camera_offset_y, tile_x, tile_y, mouse_pos):
+def draw_game(screen, game_map, ui, building_manager, road_manager, camera_offset_x, camera_offset_y, tile_x, tile_y, mouse_pos):
     screen.fill((0, 0, 0))
 
     # Hide the mouse cursor when it is over the map and show it when over the UI
@@ -182,19 +196,24 @@ def draw_game(screen, game_map, ui, building_manager, camera_offset_x, camera_of
 
     game_map.draw(screen, camera_offset_x, camera_offset_y)
 
-    for building in building_manager.buildings:
-        building.draw(screen, camera_offset_x, camera_offset_y)
-
-    for road in building_manager.roads:
+    for road in road_manager.roads:
         road.draw(screen, camera_offset_x, camera_offset_y)
 
+    for building in building_manager.buildings:
+        building.draw(screen, camera_offset_x, camera_offset_y)
 
     if building_manager.current_building is not None and mouse_x < GameSettings.GAME_WORLD_WIDTH:
         screen.blit(building_manager.get_current_preview(), (tile_x * TILE_SIZE - camera_offset_x, tile_y * TILE_SIZE - camera_offset_y))
 
+
+    road_manager.draw_preview(screen, camera_offset_x, camera_offset_y)
+
     ui.draw(screen)
 
-
     if ui.hut_button.hovered:
-        # draw info box here
         ui.draw_info_box(ui.hut_button.info_box, screen, line_spacing=7)
+    if ui.church_button.hovered:
+        ui.draw_info_box(ui.church_button.info_box, screen, line_spacing=7)
+    if ui.road_button.hovered:
+        ui.draw_info_box(ui.road_button.info_box, screen, line_spacing=7)
+

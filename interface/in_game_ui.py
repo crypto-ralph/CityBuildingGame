@@ -1,7 +1,7 @@
 import pygame
 
 from button import SpriteButton
-from interface.button_factory import create_hut_button, create_ui_exit_button, create_road_button
+from interface.button_factory import create_hut_button, create_ui_exit_button, create_road_button, create_church_button
 
 BUTTON_WIDTH = 100
 BUTTON_HEIGHT = 40
@@ -31,6 +31,7 @@ class UI:
             BUTTON_WIDTH,
             BUTTON_HEIGHT,
             "Settings",
+            font_size=15,
             button_color=self.UI_BUTTON_COLOR,
         )
         self.pause_button = SpriteButton(
@@ -39,6 +40,7 @@ class UI:
             BUTTON_WIDTH,
             BUTTON_HEIGHT,
             "Pause",
+            font_size=15,
             button_color=self.UI_BUTTON_COLOR,
         )
         self.ui_exit_button = create_ui_exit_button(
@@ -51,9 +53,15 @@ class UI:
             image=asset_manager.get_asset("hut")
         )
 
-        self.road_button = create_road_button(
+        self.church_button = create_church_button(
             self.UI_AREA_X + 100,
             self.UI_AREA_Y + 190,
+            image=asset_manager.get_asset("church")
+        )
+
+        self.road_button = create_road_button(
+            self.UI_AREA_X + 10,
+            self.UI_AREA_Y + 270,
         )
 
         self.TOP_BAR_HEIGHT = 30
@@ -65,6 +73,7 @@ class UI:
         self.buttons.add(self.pause_button)
         self.buttons.add(self.ui_exit_button)
         self.buttons.add(self.hut_button)
+        self.buttons.add(self.church_button)
         self.buttons.add(self.road_button)
 
     def resize(self, screen_width, screen_height, ui_area_width_ratio=0.25):

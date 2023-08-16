@@ -1,4 +1,4 @@
-from building import BuildingPreview, House, Road
+from building import BuildingPreview, House, Road, Building, Church
 from managers.asset_manager import AssetManager, load_road_subset
 from map import Map
 
@@ -16,6 +16,20 @@ class GameManager:
         self.income = 0
 
 
+def can_place(tiles_to_check, building):
+    # Iterate over all tiles in the list
+    for tile in tiles_to_check:
+        # Check if the tile type is suitable and if it's not occupied
+        if issubclass(building, Road):
+            if tile.type != "grass" or tile.occupied not in (None, Road.type):
+                return False
+        else:
+            if tile.type != "grass" or tile.occupied is not None:
+                return False
+    # If all tiles are suitable, return True
+    return True
+
+
 class BuildingManager:
     def __init__(self, asset_manager: AssetManager, game_manager: GameManager):
         self.asset_manager = asset_manager
@@ -24,13 +38,14 @@ class BuildingManager:
         self.building_preview = None
         self.building_can_be_placed = False
         self.buildings = []
-        self.roads = []
 
     def select_building(self, building_type: str):
         asset = self.asset_manager.get_asset(building_type)
 
         if building_type == "hut":
             self.current_building = House(asset)
+        if building_type == "church":
+            self.current_building = Church(asset)
         elif building_type == "road":
             asset = load_road_subset(self.asset_manager)
             self.current_building = Road(asset)
@@ -48,7 +63,7 @@ class BuildingManager:
             self.current_building.y = y
 
             for tile in tiles:
-                tile.occupied = True
+                tile.occupied = self.current_building.type
 
             if type(self.current_building) == Road:
                 self.roads.append(self.current_building)
@@ -67,22 +82,13 @@ class BuildingManager:
     def check_placement(self, tile_x, tile_y, mouse_x, mouse_y, game_map):
         if self.current_building:
             tiles_to_check = self.get_tiles_for_building(tile_x, tile_y, game_map)
-            self.building_can_be_placed = self.can_place(tiles_to_check)
+            self.building_can_be_placed = can_place(tiles_to_check, type(self.current_building))
 
     def get_current_preview(self):
         if self.building_can_be_placed:
             return self.building_preview.tinted_image_green
         else:
             return self.building_preview.tinted_image_red
-
-    def can_place(self, tiles_to_check):
-        # Iterate over all tiles in the list
-        for tile in tiles_to_check:
-            # Check if the tile type is suitable and if it's not occupied
-            if tile.type != "grass" or tile.occupied:
-                return False
-        # If all tiles are suitable, return True
-        return True
 
     def get_tiles_for_building(self, tile_x: int, tile_y: int, game_map: Map):
         tiles_to_check = []

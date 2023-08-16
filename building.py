@@ -19,6 +19,7 @@ class BuildingPreview:
 
 
 class Building:
+    type = "Building"
     """Represents a building in the game."""
     def __init__(self, name, width, height, image, income, citizens):
         self.name = name
@@ -29,6 +30,10 @@ class Building:
         self.image = image
         self.income = income
         self.citizens = citizens
+        self.type = "Building"
+
+    def __str__(self):
+        return self.name
 
     def draw(self, surface, camera_offset_x, camera_offset_y):
         # Generate shadow for the building
@@ -55,15 +60,34 @@ class House(Building):
 
 class Road:
     cost = 50
-    name = "Road"
+    type = "Road"
 
-    def __init__(self, asset, x=None, y=None):
+    def __init__(self, x=None, y=None, asset=None):
         self.x = x
         self.y = y
         self.width = 1
         self.height = 1
         self.image = asset
 
-    def draw(self, surface, camera_offset_x, camera_offset_y):
-        surface.blit(self.image, ((self.x * TILE_SIZE) - camera_offset_x, (self.y * TILE_SIZE) - camera_offset_y))
+    def __str__(self):
+        return self.type
 
+    # def draw(self, surface, camera_offset_x, camera_offset_y):
+    #     surface.blit(self.image, ((self.x * TILE_SIZE) - camera_offset_x, (self.y * TILE_SIZE) - camera_offset_y))
+
+    def draw(self, surface, camera_offset_x, camera_offset_y):
+        x = self.x * TILE_SIZE - camera_offset_x
+        y = self.y * TILE_SIZE - camera_offset_y
+        color = (61, 34, 1) if self.image is None else self.image
+        pygame.draw.rect(surface, color, (x, y, TILE_SIZE, TILE_SIZE))
+
+
+
+class Church(Building):
+    cost = 1000
+    name = "Church"
+
+    def __init__(self, asset, x=None, y=None, ):
+        super().__init__(name=self.name, width=3, height=3, image=asset, income=0, citizens=0)
+        self.x = x
+        self.y = y

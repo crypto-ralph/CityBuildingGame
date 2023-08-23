@@ -3,9 +3,11 @@ import random
 import pygame
 
 ASSET_PATHS = {
-    'hut': 'assets/buildings/hut2.png',
-    'road': 'assets/buildings/road.png',
-    'church': 'assets/buildings/church.png',
+    "hut": "assets/buildings/hut2.png",
+    "road": "assets/buildings/road.png",
+    "church": "assets/buildings/church.png",
+    "pause_btn": "assets/buttons/pause.png",
+    "settings_btn": "assets/buttons/settings.png"
     # You can add more assets here as needed
 }
 
@@ -29,10 +31,15 @@ class AssetManager:
         else:
             raise ValueError(f"No asset found for name: {name}")
 
+    def load_and_scale(self, name, size):
+        asset = self.get_asset(name)
+        scaled = pygame.transform.scale(asset, size)
+        return scaled.convert_alpha()
+
 
 def load_road_subset(asset_manager: AssetManager):
     num = random.choice([4, 5])
-    road_map = asset_manager.get_asset('road')
+    road_map = asset_manager.get_asset("road")
 
     sprite_width = 24
     sprite_height = 24

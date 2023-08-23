@@ -1,3 +1,15 @@
+from enum import Enum, auto
+
+
+class GameState(Enum):
+    MAIN_MENU = auto()
+    INGAME_SETTINGS = auto()
+    SETTINGS = auto()
+    GAME = auto()
+    EXIT_PLAY = auto()
+    EXIT_GAME = auto()
+
+
 class GameSettings:
     SCREEN_WIDTH = 800
     SCREEN_HEIGHT = 600
@@ -5,7 +17,7 @@ class GameSettings:
     GAME_WORLD_HEIGHT = SCREEN_HEIGHT
     UI_AREA_WIDTH = int(SCREEN_WIDTH * 0.25)
     UI_AREA_HEIGHT = SCREEN_HEIGHT
-    MENU_STATE = "menu"
+    GAME_STATE = GameState.MAIN_MENU
 
     @classmethod
     def set_screen_dimensions(cls, width, height):

@@ -1,66 +1,72 @@
 import pygame
-
-from button import SpriteButton
 from game_settings import GameSettings
+from interface.button_builder import ButtonBuilder
 
 
 class MainMenu:
-    def __init__(self, screen):
+    """
+    Represents the main menu of the game.
+
+    .. attribute:: UI_BUTTON_COLOR
+        The color of the button when not hovered.
+    .. attribute:: HOVER_BUTTON_COLOR
+        The color of the button when hovered over.
+    .. attribute:: BUTTON_PADDING
+        The spacing between buttons.
+    .. attribute:: BUTTON_WIDTH
+        Width of each button.
+    .. attribute:: BUTTON_HEIGHT
+        Height of each button.
+    """
+
+    UI_BUTTON_COLOR = (150, 150, 150)
+    HOVER_BUTTON_COLOR = (200, 200, 200)
+    BUTTON_PADDING = 20
+    BUTTON_WIDTH = 200
+    BUTTON_HEIGHT = 50
+
+    def __init__(self, screen: pygame.Surface):
+        """
+        Initialize a MainMenu instance.
+
+        :param pygame.Surface screen: The game screen on which the menu will be displayed.
+        """
         self.screen = screen
-        self.UI_BUTTON_COLOR = (150, 150, 150)
-        self.HOVER_BUTTON_COLOR = (200, 200, 200)
-        self.BUTTON_PADDING = 20
-        self.BUTTON_WIDTH = 200
-        self.BUTTON_HEIGHT = 50
+        self.button_x = GameSettings.SCREEN_WIDTH / 2 - self.BUTTON_WIDTH / 2
+        self.first_button_y = GameSettings.SCREEN_HEIGHT * 0.2
 
-        self.BUTTON_X = GameSettings.SCREEN_WIDTH / 2 - self.BUTTON_WIDTH /2
-        self.BUTTON_Y_INIT = 120
-        self.BUTTON_PADDING = self.BUTTON_HEIGHT + 20
+        self.start_button = self.create_button(0, "Start Game")
+        self.settings_button = self.create_button(1, "Settings")
+        self.exit_button = self.create_button(2, "Exit Game")
+        self.credits_button = self.create_button(3, "Credits")
 
-        self.start_button = SpriteButton(
-            x=self.BUTTON_X,
-            y=self.BUTTON_Y_INIT,
-            width=self.BUTTON_WIDTH,
-            height=self.BUTTON_HEIGHT,
-            text="Start Game",
-            button_color=self.UI_BUTTON_COLOR,
-            hover_color=self.HOVER_BUTTON_COLOR,
+        self.menu_buttons = pygame.sprite.Group(
+            self.start_button, self.settings_button, self.exit_button, self.credits_button
         )
-        self.settings_button = SpriteButton(
-            x=self.BUTTON_X,
-            y=self.BUTTON_Y_INIT + self.BUTTON_PADDING,
-            width=self.BUTTON_WIDTH,
-            height=self.BUTTON_HEIGHT,
-            text="Settings",
-            button_color=self.UI_BUTTON_COLOR,
-            hover_color=self.HOVER_BUTTON_COLOR,
+
+    def create_button(self, position: int, text: str) -> pygame.sprite.Sprite:
+        """
+        Create a button with a specific position and text.
+
+        :param int position: Vertical position index of the button.
+        :param str text: Display text for the button.
+        :return: A button ready for rendering.
+        :rtype: pygame.sprite.Sprite
+        """
+        button_spacing = self.BUTTON_HEIGHT + self.BUTTON_PADDING
+        button_builder = ButtonBuilder()
+        return (
+            button_builder.position(self.button_x, self.first_button_y + position * button_spacing)
+            .size(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+            .with_text(text)
+            .with_colors(self.UI_BUTTON_COLOR, self.HOVER_BUTTON_COLOR)
+            .build()
         )
-        self.exit_button = SpriteButton(
-            x=self.BUTTON_X,
-            y=self.BUTTON_Y_INIT + 2 * self.BUTTON_PADDING,
-            width=self.BUTTON_WIDTH,
-            height=self.BUTTON_HEIGHT,
-            text="Exit Game",
-            button_color=self.UI_BUTTON_COLOR,
-            hover_color=self.HOVER_BUTTON_COLOR,
-        )
-        self.credits_button = SpriteButton(
-            x=self.BUTTON_X,
-            y=self.BUTTON_Y_INIT + 3 * self.BUTTON_PADDING,
-            width=200,
-            height=50,
-            text="Credits",
-            button_color=self.UI_BUTTON_COLOR,
-            hover_color=self.HOVER_BUTTON_COLOR,
-        )
-        self.menu_buttons = pygame.sprite.Group()
-        self.menu_buttons.add(self.start_button)
-        self.menu_buttons.add(self.settings_button)
-        self.menu_buttons.add(self.exit_button)
-        self.menu_buttons.add(self.credits_button)
 
     def draw(self):
-        # Draw the screen
+        """
+        Draw the main menu on the screen.
+        """
         self.screen.fill((0, 0, 0))
         self.menu_buttons.draw(self.screen)
         pygame.display.flip()

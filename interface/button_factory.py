@@ -1,70 +1,75 @@
-from building import House, Church
-from button import ButtonWithInfoBox, SpriteButton
+from building import Church, House, Road
+from interface.button_builder import ButtonBuilder
+from interface.info_box import InfoBox
+
+"""
+UI Buttons
+"""
 
 
-def create_hut_button(x: int, y: int, image) -> ButtonWithInfoBox:
-    return ButtonWithInfoBox(
-        x=x,
-        y=y,
-        width=100,
-        height=40,
-        text=House.name,
-        image=image,
-        border=True,
-        border_color=(108, 52, 40),
-        border_width=2,
-        button_color=(255, 255, 255),
-        info_box_background_color=(108, 52, 40),
-        info_box_text_color=(223, 168, 120),
-        info_box_font_size=13,
-        info_box_text=f"{House.name}\nCost: {House.cost}\nIncome: {House.income}\nCitizens: {House.citizens}",
-        info_box_font_name="Verdana",
-        info_box_size=(100, 120),
-        info_box_position=(x + 100 - 20, y + 40),
+def create_hut_button(x: int, y: int, image):
+    info_box = InfoBox(
+        text=f"{House.name}\nCost: {House.cost}\nIncome: {House.income}\nCitizens: {House.citizens}",
+        font_name="Verdana",
+        font_size=13,
+        text_color=(223, 168, 120),
+        background_color=(108, 52, 40),
+        size=(100, 120),
+        position=(x + 100 - 20, y + 40),
     )
 
-def create_church_button(x: int, y: int, image) -> SpriteButton:
-    return ButtonWithInfoBox(
-        x=x,
-        y=y,
-        width=100,
-        height=40,
-        text=Church.name,
-        image=image,
-        border=True,
-        border_color=(108, 52, 40),
-        border_width=2,
-        button_color=(255, 255, 255),
-        info_box_background_color=(108, 52, 40),
-        info_box_text_color=(223, 168, 120),
-        info_box_font_size=13,
-        info_box_text=f"{Church.name}\nCost: {Church.cost}\n",
-        info_box_font_name="Verdana",
-        info_box_size=(100, 120),
-        info_box_position=(x + 100 - 20, y + 40),
+    button = (
+        ButtonBuilder()
+        .position(x, y)
+        .with_image(image)
+        .with_border((108, 52, 40), 2)
+        .with_colors(button_color=(255, 255, 255))
+        .attach_info_box(info_box)
+        .build()
+    )
+    return button
+
+
+def create_church_button(x: int, y: int, image):
+    info_box = InfoBox(
+        text=f"{Church.name}\nCost: {Church.cost}\n",
+        font_name="Verdana",
+        font_size=13,
+        text_color=(223, 168, 120),
+        background_color=(108, 52, 40),
+        size=(100, 120),
+        position=(x + 100 - 20, y + 40),
     )
 
-
-
-def create_ui_exit_button(x: int, y: int) -> SpriteButton:
-    return SpriteButton(
-        x=x,
-        y=y,
-        width=70,
-        height=40,
-        text="Exit",
-        font_size=18,
-        font_name="Verdaana",
-        button_color=(150, 150, 150)
+    button = (
+        ButtonBuilder()
+        .position(x, y)
+        .with_image(image)
+        .with_border((108, 52, 40), 2)
+        .with_colors(button_color=(255, 255, 255))
+        .attach_info_box(info_box)
+        .build()
     )
+    return button
 
 
-def create_road_button(x: int, y: int) -> SpriteButton:
-    return ButtonWithInfoBox(
-        x=x,
-        y=y,
-        width=72,
-        height=72,
-        text="Road",
-        button_color=(150, 150, 150)
+def create_road_button(x: int, y: int):
+    info_box = InfoBox(
+        text=f"{Road.type}\nCost: {Road.cost}\nIncome:",
+        font_name="Verdana",
+        font_size=13,
+        text_color=(223, 168, 120),
+        background_color=(108, 52, 40),
+        size=(100, 120),
+        position=(x + 100 - 20, y + 40),
     )
+    button = (
+        ButtonBuilder()
+        .position(x, y)
+        .size(72, 72)
+        .with_text(text=Road.type, font_name="Verdana", font_size=16)
+        .with_colors(button_color=(150, 150, 150))
+        .attach_info_box(info_box)
+        .build()
+    )
+    return button

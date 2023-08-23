@@ -1,105 +1,87 @@
 import pygame
 
-from button import SpriteButton
-from interface.button_factory import create_hut_button, create_ui_exit_button, create_road_button, create_church_button
-
-BUTTON_WIDTH = 100
-BUTTON_HEIGHT = 40
+from geometry import Size
+from interface.button import SpriteButton
+from interface.button_factory import create_hut_button, create_road_button, create_church_button
 
 
 class UI:
+    BACKGROUND_COLOR = (200, 200, 200)
+    TEXT_FONT = "Verdana"
+
     def __init__(
-            self,
-            screen_width,
-            screen_height,
-            asset_manager,
-            ui_area_width_ratio=0.25,
-            ui_button_color=(255, 255, 255),
-            ui_background_color=(0, 0, 0),
+        self,
+        screen_size: Size,
+        asset_manager,
+        ui_area_width_ratio=0.25,
     ):
-        self.UI_AREA_WIDTH = int(screen_width * ui_area_width_ratio)
-        self.UI_AREA_HEIGHT = screen_height
-        self.UI_AREA_X = screen_width - self.UI_AREA_WIDTH
-        self.UI_AREA_Y = 0
-        self.UI_BUTTON_COLOR = ui_button_color
-        self.UI_BACKGROUND_COLOR = ui_background_color
-        self.buttons = pygame.sprite.Group()
+        self.ui_area_width = int(screen_size.width * ui_area_width_ratio)
+        self.ui_area_height = screen_size.height
+        self.ui_area_x = screen_size.width - self.ui_area_width
+        self.ui_area_y = 0
+
+        self.building_buttons = pygame.sprite.Group()
+        self.control_buttons = pygame.sprite.Group()
+
+        self.top_bar_font = pygame.font.SysFont(self.TEXT_FONT, 15)
+        self.building_header_font = pygame.font.SysFont(self.TEXT_FONT, 18)
+
+        self.control_button_size = 60
+        total_button_width = 2 * self.control_button_size
+        start_x = (self.ui_area_width - total_button_width) / 2
+        self.control_button_y = 10
+
+        pause_img = asset_manager.load_and_scale("pause_btn", (self.control_button_size, self.control_button_size))
+        settings_img = asset_manager.load_and_scale(
+            "settings_btn", (self.control_button_size, self.control_button_size)
+        )
+
+        self.pause_button = SpriteButton(
+            self.ui_area_x + start_x,
+            self.ui_area_y + self.control_button_y,
+            button_color=self.BACKGROUND_COLOR,
+            asset_image=pause_img,
+        )
 
         self.settings_button = SpriteButton(
-            self.UI_AREA_X + 10,
-            self.UI_AREA_Y + 10,
-            BUTTON_WIDTH,
-            BUTTON_HEIGHT,
-            "Settings",
-            font_size=15,
-            button_color=self.UI_BUTTON_COLOR,
+            self.ui_area_x + start_x + self.control_button_size,
+            self.ui_area_y + self.control_button_y,
+            button_color=self.BACKGROUND_COLOR,
+            asset_image=settings_img,
         )
-        self.pause_button = SpriteButton(
-            self.UI_AREA_X + 10,
-            self.UI_AREA_Y + 70,
-            BUTTON_WIDTH,
-            BUTTON_HEIGHT,
-            "Pause",
-            font_size=15,
-            button_color=self.UI_BUTTON_COLOR,
-        )
-        self.ui_exit_button = create_ui_exit_button(
-            self.UI_AREA_X + 10,
-            self.UI_AREA_Y + 130,
-        )
+
         self.hut_button = create_hut_button(
-            self.UI_AREA_X + 10,
-            self.UI_AREA_Y + 190,
-            image=asset_manager.get_asset("hut")
+            self.ui_area_x + 10, self.ui_area_y + 160, image=asset_manager.get_asset("hut")
         )
-
         self.church_button = create_church_button(
-            self.UI_AREA_X + 100,
-            self.UI_AREA_Y + 190,
-            image=asset_manager.get_asset("church")
+            self.ui_area_x + 100, self.ui_area_y + 160, image=asset_manager.get_asset("church")
         )
+        self.road_button = create_road_button(self.ui_area_x + 10, self.ui_area_y + 250)
 
-        self.road_button = create_road_button(
-            self.UI_AREA_X + 10,
-            self.UI_AREA_Y + 270,
-        )
+        self.top_bar_height = 30
 
-        self.TOP_BAR_HEIGHT = 30
-        self.money = 0
-        self.income = 0
-        self.citizens = 0
-
-        self.buttons.add(self.settings_button)
-        self.buttons.add(self.pause_button)
-        self.buttons.add(self.ui_exit_button)
-        self.buttons.add(self.hut_button)
-        self.buttons.add(self.church_button)
-        self.buttons.add(self.road_button)
+        self.control_buttons.add(self.settings_button)
+        self.control_buttons.add(self.pause_button)
+        self.building_buttons.add(self.hut_button)
+        self.building_buttons.add(self.church_button)
+        self.building_buttons.add(self.road_button)
 
     def resize(self, screen_width, screen_height, ui_area_width_ratio=0.25):
-        self.UI_AREA_WIDTH = int(screen_width * ui_area_width_ratio)
-        self.UI_AREA_HEIGHT = screen_height
-        self.UI_AREA_X = screen_width - self.UI_AREA_WIDTH
+        self.ui_area_width = int(screen_width * ui_area_width_ratio)
+        self.ui_area_height = screen_height
+        self.ui_area_x = screen_width - self.ui_area_width
 
-    def draw_top_bar(self, screen):
-        font = pygame.font.SysFont("Verdana", 15)
+    def draw_top_bar(self, screen, money: int, income: int, citizens: int):
         text_color = (223, 168, 120)
-        money_text = font.render(f"Money: {self.money}", True, text_color)
+        money_text = self.top_bar_font.render(f"Money: {money}", True, text_color)
 
-        if int(self.income) < 0:
-            sign = ""
-            income_color = (239, 98, 98)
-        elif int(self.income) > 0:
-            sign = "+"
-            income_color = (85, 122, 70)
-        else:
-            sign = ""
-            income_color = (223, 168, 120)
+        sign = "+" if income > 0 else ""
+        income_color = (85, 122, 70) if income > 0 else (239, 98, 98) if income < 0 else (223, 168, 120)
 
-        income_text = font.render(f"Income: {sign}{self.income}", True, income_color)
-        citizens_text = font.render(f"Citizens: {self.citizens}", True, text_color)
+        income_text = self.top_bar_font.render(f"Income: {sign}{income}", True, income_color)
+        citizens_text = self.top_bar_font.render(f"Citizens: {citizens}", True, text_color)
 
-        pygame.draw.rect(screen, (108, 52, 40), (0, 0, self.UI_AREA_X, self.TOP_BAR_HEIGHT))
+        pygame.draw.rect(screen, (108, 52, 40), (0, 0, self.ui_area_x, self.top_bar_height))
         screen.blit(money_text, (10, 5))
         screen.blit(income_text, (200, 5))
         screen.blit(citizens_text, (400, 5))
@@ -107,30 +89,25 @@ class UI:
     def draw_buttons_background(self, screen):
         pygame.draw.rect(
             screen,
-            self.UI_BACKGROUND_COLOR,
-            (self.UI_AREA_X, 0, self.UI_AREA_WIDTH, self.UI_AREA_HEIGHT),
+            self.BACKGROUND_COLOR,
+            (self.ui_area_x, 0, self.ui_area_width, self.ui_area_height),
         )
 
-    @staticmethod
-    def draw_info_box(info_box, screen, line_spacing=10):
-        # Create the text surface
-        position = info_box['position']
-        lines = info_box['text'].split('\n')
-        text_surface = info_box['font'].render(info_box['text'], True, info_box['text_color'])
-        y = position[1]  # initialize y coordinate
-        pygame.draw.rect(screen, info_box['background_color'], (*position, *info_box['size']))
+    def draw_section_text(self, screen):
+        text_surface = self.building_header_font.render("--Buildings--", True, (0, 0, 0))
+        surface_width = text_surface.get_width()
 
-        # Calculate the position of the text surface within the info box
-        # text_rect = text_surface.get_rect(center=(position[0], position[1]))
-        if len(lines) > 0:
-            for line in lines:
-                # render each line individually
-                text_surface = info_box['font'].render(line, True, info_box['text_color'])
-                text_rect = text_surface.get_rect(topleft=(position[0] + 8, y + text_surface.get_height() / 2))
-                screen.blit(text_surface, text_rect)
-                y += text_surface.get_height() + line_spacing  # move y coordinate for the next line
+        screen.blit(
+            text_surface,
+            [
+                self.ui_area_x + (self.ui_area_width - surface_width) / 2,
+                self.ui_area_y + self.control_button_y + self.control_button_size + 50,
+            ],
+        )
 
-    def draw(self, surface):
-        self.draw_top_bar(surface)
+    def draw(self, surface, money, income, citizens):
+        self.draw_top_bar(surface, money, income, citizens)
         self.draw_buttons_background(surface)
-        self.buttons.draw(surface)
+        self.draw_section_text(surface)
+        self.building_buttons.draw(surface)
+        self.control_buttons.draw(surface)

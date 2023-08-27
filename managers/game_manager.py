@@ -2,9 +2,8 @@ from building import BuildingPreview, House, Road, Building, Church
 from managers.asset_manager import AssetManager, load_road_subset
 from map import Map
 
-buildings = {
-    "hut": House
-}
+buildings = {"hut": House}
+
 
 class GameManager:
     # Set up the income update interval
@@ -38,6 +37,7 @@ class BuildingManager:
         self.building_preview = None
         self.building_can_be_placed = False
         self.buildings = []
+        self.roads = []
 
     def select_building(self, building_type: str):
         asset = self.asset_manager.get_asset(building_type)
@@ -72,8 +72,9 @@ class BuildingManager:
 
             if hasattr(self.current_building, "citizens"):
                 self.game_manager.citizens += self.current_building.citizens
+            if hasattr(self.current_building, "income"):
+                self.game_manager.income += self.current_building.income
             self.game_manager.money -= self.current_building.cost
-            self.game_manager.income += self.current_building.income
             self.clear_current_building()
 
     def remove_building(self, building):
@@ -99,7 +100,12 @@ class BuildingManager:
             for dy in range(self.current_building.height):
                 check_tile_y = tile_y + dy
                 # Check if the tile is within the map
-                if check_tile_x < 0 or check_tile_y < 0 or check_tile_x >= game_map.width or check_tile_y >= game_map.height:
+                if (
+                    check_tile_x < 0
+                    or check_tile_y < 0
+                    or check_tile_x >= game_map.width
+                    or check_tile_y >= game_map.height
+                ):
                     return None  # Return None if any tile is out of bounds
 
                 # Get the tile at this position
@@ -109,7 +115,6 @@ class BuildingManager:
                 tiles_to_check.append(tile)
 
         return tiles_to_check
-
 
     def get_citizens(self):
         total_citizens = 0

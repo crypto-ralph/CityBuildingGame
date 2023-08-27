@@ -7,7 +7,9 @@ ASSET_PATHS = {
     "road": "assets/buildings/road.png",
     "church": "assets/buildings/church.png",
     "pause_btn": "assets/buttons/pause.png",
-    "settings_btn": "assets/buttons/settings.png"
+    "pause_hover_btn": "assets/buttons/pause_highlighted.png",
+    "settings_btn": "assets/buttons/settings.png",
+    "settings_hover_btn": "assets/buttons/settings_highlighted.png",
     # You can add more assets here as needed
 }
 

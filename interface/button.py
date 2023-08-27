@@ -6,7 +6,9 @@ from interface.info_box import InfoBox
 
 
 class Button(ABC):
-    def __init__(self, x, y, width, height, text, text_color, font_name, font_size, button_color, hover_color):
+    def __init__(
+        self, x, y, width, height, text, text_color, font_name, font_size, button_color, hover_color, hover_asset_image
+    ):
         self.width = width
         self.height = height
         self.rect = pygame.Rect(x, y, width, height)
@@ -15,6 +17,7 @@ class Button(ABC):
         self.font = pygame.font.SysFont(font_name, font_size)
         self.button_color = button_color
         self.hover_color = hover_color
+        self.hover_asset_image = hover_asset_image
         self.hovered = False
 
     def is_clicked(self, pos):
@@ -44,6 +47,7 @@ class SpriteButton(Button, pygame.sprite.Sprite):
         font_name="Arial",
         font_size=20,
         asset_image=None,
+        hover_asset_image=None,
         hover_color=(100, 100, 100),
         border=False,
         border_color=(0, 0, 0),
@@ -71,6 +75,7 @@ class SpriteButton(Button, pygame.sprite.Sprite):
             font_size=font_size,
             button_color=button_color,
             hover_color=hover_color,
+            hover_asset_image=hover_asset_image,
         )
         pygame.sprite.Sprite.__init__(self)
         self.background = background
@@ -101,19 +106,22 @@ class SpriteButton(Button, pygame.sprite.Sprite):
     def handle_hovered(self, mouse_pos):
         if self.is_clicked(mouse_pos) and not self.hovered:
             self.hovered = True
-            self.image.fill(self.hover_color)
-            if self.asset_image is not None:
-                self.image.blit(self.asset_image, (0, 0))
-            else:
+            if self.hover_asset_image:  # Use hover image if available
+                self.image.blit(self.hover_asset_image, (0, 0))
+            else:  # Use hover color otherwise
+                self.image.fill(self.hover_color)
+                if self.asset_image is not None:
+                    self.image.blit(self.asset_image, (0, 0))
                 self.draw_text()
         elif not self.is_clicked(mouse_pos) and self.hovered:
             self.hovered = False
-            if self.asset_image is not None:
+            if self.asset_image:  # Use the original asset image if available
                 self.image.fill(self.button_color)
                 self.image.blit(self.asset_image, (0, 0))
-            else:
+            else:  # Use original button color otherwise
                 self.image.fill(self.button_color)
                 self.draw_text()
+
         if self.border:
             pygame.draw.rect(self.image, self.border_color, self.image.get_rect(), self.border_width)
 
@@ -141,6 +149,7 @@ class ButtonWithInfoBox(SpriteButton):
         border_color=(0, 0, 0),
         border_width=1,
         hover_color=(100, 100, 100),
+        hover_asset_image=None,
         info_box: InfoBox = None,  # Accept an InfoBox instance
     ):
         super().__init__(
@@ -154,6 +163,7 @@ class ButtonWithInfoBox(SpriteButton):
             font_name,
             font_size,
             image,
+            hover_asset_image,
             hover_color,
             border,
             border_color,

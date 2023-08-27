@@ -73,6 +73,9 @@ def game_loop(game_map, game_clock, screen):
         for button in ui.building_buttons:
             button.handle_hovered(mouse_pos)
 
+        for button in ui.control_buttons:
+            button.handle_hovered(mouse_pos)
+
         # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

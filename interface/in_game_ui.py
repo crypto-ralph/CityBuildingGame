@@ -36,11 +36,19 @@ class UI:
             "settings_btn", (self.control_button_size, self.control_button_size)
         )
 
+        pause_hover_img = asset_manager.load_and_scale(
+            "pause_hover_btn", (self.control_button_size, self.control_button_size)
+        )
+        settings_hover_img = asset_manager.load_and_scale(
+            "settings_hover_btn", (self.control_button_size, self.control_button_size)
+        )
+
         self.pause_button = SpriteButton(
             self.ui_area_x + start_x,
             self.ui_area_y + self.control_button_y,
             button_color=self.BACKGROUND_COLOR,
             asset_image=pause_img,
+            hover_asset_image=pause_hover_img,
         )
 
         self.settings_button = SpriteButton(
@@ -48,13 +56,16 @@ class UI:
             self.ui_area_y + self.control_button_y,
             button_color=self.BACKGROUND_COLOR,
             asset_image=settings_img,
+            hover_asset_image=settings_hover_img,
         )
 
         self.hut_button = create_hut_button(
             self.ui_area_x + 10, self.ui_area_y + 160, image=asset_manager.get_asset("hut")
         )
         self.church_button = create_church_button(
-            self.ui_area_x + 100, self.ui_area_y + 160, image=asset_manager.get_asset("church")
+            self.ui_area_x + 100,
+            self.ui_area_y + 160,
+            image=asset_manager.load_and_scale("church", Size(72, 72).as_tuple()),
         )
         self.road_button = create_road_button(self.ui_area_x + 10, self.ui_area_y + 250)
 
@@ -82,9 +93,23 @@ class UI:
         citizens_text = self.top_bar_font.render(f"Citizens: {citizens}", True, text_color)
 
         pygame.draw.rect(screen, (108, 52, 40), (0, 0, self.ui_area_x, self.top_bar_height))
-        screen.blit(money_text, (10, 5))
-        screen.blit(income_text, (200, 5))
-        screen.blit(citizens_text, (400, 5))
+
+        # Calculate the x and y coordinates to center-align the text
+        money_x = (
+            self.ui_area_x // 6 - money_text.get_width() // 2
+        )  # Divided by 6 to place in the center of the first section
+        money_y = (self.top_bar_height - money_text.get_height()) // 2
+
+        income_x = self.ui_area_x // 2 - income_text.get_width() // 2  # Center of the screen
+        income_y = (self.top_bar_height - income_text.get_height()) // 2
+
+        citizens_x = 5 * self.ui_area_x // 6 - citizens_text.get_width() // 2  # Center of the third section
+        citizens_y = (self.top_bar_height - citizens_text.get_height()) // 2
+
+        # Draw the text onto the screen at the calculated coordinates
+        screen.blit(money_text, (money_x, money_y))
+        screen.blit(income_text, (income_x, income_y))
+        screen.blit(citizens_text, (citizens_x, citizens_y))
 
     def draw_buttons_background(self, screen):
         pygame.draw.rect(

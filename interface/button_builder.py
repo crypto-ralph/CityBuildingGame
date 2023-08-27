@@ -1,3 +1,5 @@
+from typing import Optional
+
 from interface.button import SpriteButton, ButtonWithInfoBox
 from interface.info_box import InfoBox
 
@@ -19,9 +21,10 @@ class ButtonBuilder:
         self.border_width = 1
         self.image = None
         self.hover_color = (100, 100, 100)
+        self.hover_image = None
 
         # Default values for InfoBox
-        self.info_box: InfoBox = None
+        self.info_box: Optional[InfoBox] = None
 
     # Button configuration methods
     def position(self, x, y):
@@ -54,6 +57,10 @@ class ButtonBuilder:
 
     def with_image(self, image):
         self.image = image
+        return self
+
+    def with_hover_image(self, image):
+        self.hover_image = image
         return self
 
     # InfoBox configuration methods
@@ -106,6 +113,7 @@ class ButtonBuilder:
                 border_color=self.border_color,
                 border_width=self.border_width,
                 info_box=self.info_box,
+                hover_asset_image=self.hover_image,
             )
         else:
             return SpriteButton(
@@ -123,6 +131,7 @@ class ButtonBuilder:
                 border=self.border,
                 border_color=self.border_color,
                 border_width=self.border_width,
+                hover_asset_image=self.hover_image,
             )
 
     # Reset the builder for next usage (optional)

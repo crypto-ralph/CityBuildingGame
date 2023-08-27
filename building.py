@@ -21,6 +21,7 @@ class BuildingPreview:
 class Building:
     type = "Building"
     """Represents a building in the game."""
+
     def __init__(self, name, width, height, image, income, citizens):
         self.name = name
         self.width = width
@@ -40,7 +41,13 @@ class Building:
         shadow, shadow_offset = generate_shadow(self.image)
 
         # Draw the shadow considering the camera offset
-        surface.blit(shadow, ((self.x * TILE_SIZE + shadow_offset[0]) - camera_offset_x, (self.y * TILE_SIZE + shadow_offset[1]) - camera_offset_y))
+        surface.blit(
+            shadow,
+            (
+                (self.x * TILE_SIZE + shadow_offset[0]) - camera_offset_x,
+                (self.y * TILE_SIZE + shadow_offset[1]) - camera_offset_y,
+            ),
+        )
 
         # Draw the building considering the camera offset
         surface.blit(self.image, ((self.x * TILE_SIZE) - camera_offset_x, (self.y * TILE_SIZE) - camera_offset_y))
@@ -82,12 +89,17 @@ class Road:
         pygame.draw.rect(surface, color, (x, y, TILE_SIZE, TILE_SIZE))
 
 
-
 class Church(Building):
     cost = 1000
+    income = 100
     name = "Church"
 
-    def __init__(self, asset, x=None, y=None, ):
-        super().__init__(name=self.name, width=3, height=3, image=asset, income=0, citizens=0)
+    def __init__(
+        self,
+        asset,
+        x=None,
+        y=None,
+    ):
+        super().__init__(name=self.name, width=4, height=4, image=asset, income=self.income, citizens=0)
         self.x = x
         self.y = y

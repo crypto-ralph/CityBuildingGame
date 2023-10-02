@@ -34,8 +34,8 @@ import random
 import pygame
 import noise
 
-MAP_WIDTH = 50
-MAP_HEIGHT = 50
+MAP_WIDTH = 200
+MAP_HEIGHT = 200
 TILE_SIZE = 24
 OCTAVES = 6
 FREQUENCY = 16.0
@@ -50,7 +50,7 @@ class Tile:
         self.color = self.get_color()
         self.highlighted = False
         self.clicked = False
-        self.occupied = False
+        self.occupied = None
 
     def get_color(self):
         if self.type == "grass":
@@ -97,8 +97,8 @@ class Map:
         for x in range(self.width):
             for y in range(self.height):
                 elevation = noise.pnoise2(
-                    (x + self.noise_offset_x) / FREQUENCY,  # Modify this line
-                    (y + self.noise_offset_y) / FREQUENCY,  # Modify this line
+                    (x + self.noise_offset_x) / FREQUENCY,
+                    (y + self.noise_offset_y) / FREQUENCY,
                 )
                 tile = Tile()
                 if elevation < WATER_THRESHOLD:
@@ -117,8 +117,4 @@ class Map:
     def draw(self, surface, camera_offset_x, camera_offset_y):
         for x in range(self.width):
             for y in range(self.height):
-                self.tiles[x][y].draw(
-                    surface,
-                    x * TILE_SIZE - camera_offset_x,
-                    y * TILE_SIZE - camera_offset_y
-                )
+                self.tiles[x][y].draw(surface, x * TILE_SIZE - camera_offset_x, y * TILE_SIZE - camera_offset_y)
